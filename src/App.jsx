@@ -23,7 +23,7 @@ function App() {
       <Dashboard />
     }/>
     <Route path='/customers' element={<Customers />}/>
-      <Route path='/orders' element={<Orders />}/>
+    <Route path='/orders' element={<Orders />}/>
   </Routes>
  
   

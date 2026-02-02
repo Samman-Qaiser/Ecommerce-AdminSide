@@ -109,7 +109,7 @@ const AppSidebar = () => {
                             {item.items.map((subItem) => (
                               <SidebarMenuSubItem key={subItem.title}>
                                 <SidebarMenuSubButton asChild>
-                                  <Link href={subItem.url}>
+                                  <Link to={subItem.url}>
                                     <span>{subItem.title}</span>
                                   </Link>
                                 </SidebarMenuSubButton>
@@ -124,10 +124,10 @@ const AppSidebar = () => {
                         tooltip={item.title}
                         className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                       >
-                        <a href={item.url}>
+                        <Link to={item.url}>
                           {item.icon && <item.icon className="size-4" />}
                           <span>{item.title}</span>
-                        </a>
+                        </Link>
                       </SidebarMenuButton>
                     )}
                   </SidebarMenuItem>
