@@ -6,7 +6,6 @@ import {SidebarProvider,SidebarTrigger} from "@/components/ui/sidebar"
 import AppSidebar from './Layout/AppSidebar'
 import Dashboard from './Pages/Dashboard'
 import Customers from './Pages/Customers'
-import OrderTable from './components/charts/OrderTable'
 import Orders from './Pages/Orders'
 function App() {
 
@@ -17,7 +16,9 @@ function App() {
 <Header />
  <SidebarProvider>
     <AppSidebar />
+
   <main className='mt-15 w-full'>
+      <SidebarTrigger />
   <Routes>
     <Route path='' element={
       <Dashboard />
