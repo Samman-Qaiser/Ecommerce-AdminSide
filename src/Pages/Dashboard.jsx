@@ -61,7 +61,7 @@ const Dashboard = () => {
         <Card className='col-span-2'>
           <MonthlyEarningsWave />
         </Card>
-               <Card className='max-h-[300px]'>
+               <Card className='max-h-75'>
                <PaymentMethodDonut />
         </Card>
         <div className='col-span-3 '>

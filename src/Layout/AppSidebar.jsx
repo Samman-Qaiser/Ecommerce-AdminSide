@@ -1,15 +1,10 @@
-import React from 'react'
+import {Link} from 'react-router-dom'
 import {
   LayoutDashboard,
   Package,
   ShoppingCart,
   Users,
-  Settings,
-  BarChart3,
-  Tag,
-  Truck,
-  FileText,
-  Bell,
+
   ChevronRight,
 } from 'lucide-react'
 import {
@@ -114,9 +109,9 @@ const AppSidebar = () => {
                             {item.items.map((subItem) => (
                               <SidebarMenuSubItem key={subItem.title}>
                                 <SidebarMenuSubButton asChild>
-                                  <a href={subItem.url}>
+                                  <Link href={subItem.url}>
                                     <span>{subItem.title}</span>
-                                  </a>
+                                  </Link>
                                 </SidebarMenuSubButton>
                               </SidebarMenuSubItem>
                             ))}

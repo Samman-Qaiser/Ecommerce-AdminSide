@@ -5,6 +5,9 @@ import Header from './Layout/Header'
 import {SidebarProvider,SidebarTrigger} from "@/components/ui/sidebar"
 import AppSidebar from './Layout/AppSidebar'
 import Dashboard from './Pages/Dashboard'
+import Customers from './Pages/Customers'
+import OrderTable from './components/charts/OrderTable'
+import Orders from './Pages/Orders'
 function App() {
 
 
@@ -19,7 +22,11 @@ function App() {
     <Route path='' element={
       <Dashboard />
     }/>
+    <Route path='/customers' element={<Customers />}/>
+      <Route path='/orders' element={<Orders />}/>
   </Routes>
+ 
+  
   </main>
  </SidebarProvider>
 </BrowserRouter>
