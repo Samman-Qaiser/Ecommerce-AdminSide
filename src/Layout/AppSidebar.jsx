@@ -12,6 +12,7 @@ import {
   Bell,
   ChevronRight,
 } from 'lucide-react'
+import {Link} from 'react-router-dom'
 import {
   Sidebar,
   SidebarContent,
@@ -114,9 +115,9 @@ const AppSidebar = () => {
                             {item.items.map((subItem) => (
                               <SidebarMenuSubItem key={subItem.title}>
                                 <SidebarMenuSubButton asChild>
-                                  <a href={subItem.url}>
+                                  <Link to={subItem.url}>
                                     <span>{subItem.title}</span>
-                                  </a>
+                                  </Link>
                                 </SidebarMenuSubButton>
                               </SidebarMenuSubItem>
                             ))}
@@ -129,10 +130,10 @@ const AppSidebar = () => {
                         tooltip={item.title}
                         className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                       >
-                        <a href={item.url}>
+                        <Link to={item.url}>
                           {item.icon && <item.icon className="size-4" />}
                           <span>{item.title}</span>
-                        </a>
+                        </Link>
                       </SidebarMenuButton>
                     )}
                   </SidebarMenuItem>
