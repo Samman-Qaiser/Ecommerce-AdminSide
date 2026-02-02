@@ -25,9 +25,7 @@ function App() {
     <Route path='/customers' element={<Customers />}/>
     <Route path='/orders' element={<Orders />}/>
   </Routes>
- 
-  
-  </main>
+ </main>
  </SidebarProvider>
 </BrowserRouter>
 </>
