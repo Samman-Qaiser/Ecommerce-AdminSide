@@ -7,6 +7,7 @@ import AppSidebar from './Layout/AppSidebar'
 import Dashboard from './Pages/Dashboard'
 import Customers from './Pages/Customers'
 import Orders from './Pages/Orders'
+import ProductAdd from './Pages/ProductAdd'
 function App() {
 
 
@@ -17,7 +18,7 @@ function App() {
  <SidebarProvider>
     <AppSidebar />
 
-  <main className='mt-15 w-full'>
+  <main className='mt-17 p-4 w-full'>
       <SidebarTrigger />
   <Routes>
     <Route path='' element={
@@ -25,6 +26,7 @@ function App() {
     }/>
     <Route path='/customers' element={<Customers />}/>
     <Route path='/orders' element={<Orders />}/>
+    <Route path='/addproduct' element={<ProductAdd />}/>
   </Routes>
  </main>
  </SidebarProvider>

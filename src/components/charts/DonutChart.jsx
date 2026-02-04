@@ -20,8 +20,9 @@ const COLORS = [
 const PaymentMethodDonut = () => {
   return (
     <div className="w-full h-55 bg-white rounded-xl p-2 box-border  shadow-sm">
-      <h2 className="text-lg font-semibold ">
-        Orders by Payment Method
+      <h2 className="text-lg text-center font-semibold ">
+       
+        Payment Method
       </h2>
 
       <ResponsiveContainer width="100%" height="70%">

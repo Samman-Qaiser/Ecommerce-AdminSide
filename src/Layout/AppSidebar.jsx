@@ -40,7 +40,7 @@ const menuItems = [
     icon: Package,
     items: [
       { title: 'All Products', url: '/products' },
-      { title: 'Add Product', url: '/products/add' },
+      { title: 'Add Product', url: '/addproduct' },
       { title: 'Categories', url: '/products/categories' },
      
     ],
