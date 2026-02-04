@@ -191,17 +191,7 @@ const ProductAdd = () => {
               </div>
             </div>
             
-            <div className="flex items-center gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setPreviewMode(!previewMode)}
-                className="gap-2"
-              >
-                <Eye className="w-4 h-4" />
-                {previewMode ? 'Edit' : 'Preview'}
-              </Button>
-            </div>
+     
           </div>
         </div>
       </div>
@@ -576,7 +566,7 @@ const ProductAdd = () => {
               
               {/* Display Settings Card */}
               <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200/60 overflow-hidden sticky top-24">
-                <div className="bg-gradient-to-r from-indigo-50 to-blue-50/50 px-6 py-4 border-b border-indigo-200/60">
+                <div className="bg-linear-to-r from-indigo-50 to-blue-50/50 px-6 py-4 border-b border-indigo-200/60">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm">
                       <Sparkles className="w-4 h-4 text-indigo-700" />
@@ -615,16 +605,16 @@ const ProductAdd = () => {
     }
   }}
 >
-  <SelectTrigger className="h-11 bg-slate-50/50 border-slate-200">
+  <SelectTrigger className="h-11 bg-slate-50/50 w-full border-slate-200">
     <SelectValue placeholder="No badge" />
   </SelectTrigger>
 
   <SelectContent>
     <SelectItem value="none">No Badge</SelectItem>
-    <SelectItem value="NEW">🆕 New Arrival</SelectItem>
-    <SelectItem value="SALE">🔥 On Sale</SelectItem>
-    <SelectItem value="BEST SELLER">⭐ Best Seller</SelectItem>
-    <SelectItem value="TOP RATED">👑 Top Rated</SelectItem>
+    <SelectItem value="NEW"> New Arrival</SelectItem>
+    <SelectItem value="SALE"> On Sale</SelectItem>
+    <SelectItem value="BEST SELLER"> Best Seller</SelectItem>
+    <SelectItem value="TOP RATED"> Top Rated</SelectItem>
   </SelectContent>
 </Select>
 
@@ -639,7 +629,7 @@ const ProductAdd = () => {
                       defaultValue="active"
                       onValueChange={(value) => setValue('status', value)}
                     >
-                      <SelectTrigger className="h-11 bg-slate-50/50 border-slate-200">
+                      <SelectTrigger className="h-11 w-full bg-slate-50/50 border-slate-200">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>

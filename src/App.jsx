@@ -8,12 +8,15 @@ import Dashboard from './Pages/Dashboard'
 import Customers from './Pages/Customers'
 import Orders from './Pages/Orders'
 import ProductAdd from './Pages/ProductAdd'
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from './service/queryClient'
 function App() {
 
 
   return (
 <>
-<BrowserRouter>
+<QueryClientProvider client={queryClient}>
+  <BrowserRouter>
 <Header />
  <SidebarProvider>
     <AppSidebar />
@@ -31,6 +34,8 @@ function App() {
  </main>
  </SidebarProvider>
 </BrowserRouter>
+</QueryClientProvider>
+
 </>
   )
 }
