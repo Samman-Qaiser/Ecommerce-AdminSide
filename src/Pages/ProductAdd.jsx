@@ -434,41 +434,7 @@ const ProductAdd = () => {
                     <Label className="text-sm font-medium text-slate-700 flex items-center gap-2">
                       Main Product Image <span className="text-red-500">*</span>
                     </Label>
-                    
-                    {!mainImage ? (
-                      <label className="group relative block w-full h-64 border-2 border-dashed border-slate-300 rounded-xl hover:border-purple-400 transition-all cursor-pointer overflow-hidden bg-linear-to-br from-slate-50 to-purple-50/20">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleMainImageChange}
-                          className="hidden"
-                        />
-                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                          <div className="w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <Upload className="w-8 h-8 text-purple-500" />
-                          </div>
-                          <div className="text-center">
-                            <p className="text-sm font-medium text-slate-700">Click to upload main image</p>
-                            <p className="text-xs text-slate-500 mt-1">PNG, JPG, WEBP up to 10MB</p>
-                          </div>
-                        </div>
-                      </label>
-                    ) : (
-                      <div className="relative group">
-                        <img
-                          src={mainImage}
-                          alt="Main product"
-                          className="w-full h-64 object-cover rounded-xl border-2 border-purple-200"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setMainImage(null)}
-                          className="absolute top-3 right-3 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    )}
+
                   </div>
 
                   <Separator />
@@ -476,7 +442,7 @@ const ProductAdd = () => {
                   {/* Gallery Images */}
                   <div className="space-y-3">
                     <Label className="text-sm font-medium text-slate-700">
-                      Gallery Images (Optional)
+                      Product Images
                     </Label>
                     
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
