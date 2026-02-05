@@ -10,11 +10,13 @@ import Orders from './Pages/Orders'
 import ProductAdd from './Pages/ProductAdd'
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from './service/queryClient'
+import { ToastContainer } from 'react-toastify'
 function App() {
 
 
   return (
 <>
+<ToastContainer />
 <QueryClientProvider client={queryClient}>
   <BrowserRouter>
 <Header />

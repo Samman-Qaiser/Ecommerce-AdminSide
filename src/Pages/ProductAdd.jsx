@@ -406,7 +406,7 @@ const ProductAdd = () => {
                       <Label className="text-sm font-medium text-slate-700">
                         Stock Status
                       </Label>
-                      <div className="h-11 px-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-2">
+                      <div className="h-11 px-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center   gap-2">
                         <div className={`w-2 h-2 rounded-full ${parseInt(formValues.stock || 0) > 0 ? 'bg-green-500' : 'bg-red-500'}`} />
                         <span className="text-sm text-slate-600">
                           {parseInt(formValues.stock || 0) > 0 ? 'In Stock' : 'Out of Stock'}
@@ -464,7 +464,7 @@ const ProductAdd = () => {
                       ))}
                       
                       {/* Add More Button */}
-                      <label className="group relative block w-full h-32 border-2 border-dashed border-slate-300 rounded-lg hover:border-purple-400 transition-all cursor-pointer bg-slate-50/50">
+                      <label className="group relative block w-full h-32 border-2 border-dashed border-slate-300   rounded-lg hover:border-purple-400 transition-all cursor-pointer bg-slate-50/50">
                         <input
                           type="file"
                           accept="image/*"
