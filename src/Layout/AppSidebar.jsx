@@ -23,11 +23,13 @@ import {
   SidebarMenuSubItem,
   SidebarFooter,
 } from '@/components/ui/sidebar'
+import { MdCategory } from "react-icons/md";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
+import { FaMarsDouble } from 'react-icons/fa'
 
 const menuItems = [
   {
@@ -41,7 +43,14 @@ const menuItems = [
     items: [
       { title: 'All Products', url: '/products' },
       { title: 'Add Product', url: '/addproduct' },
-      { title: 'Categories', url: '/products/categories' },
+    ],
+  },
+   {
+    title: 'Categories',
+    icon: MdCategory,
+    items: [
+      { title: 'Main Categories', url: '/categories' },
+        { title: 'Sub Categories', url: '/subcategories' },
      
     ],
   },
