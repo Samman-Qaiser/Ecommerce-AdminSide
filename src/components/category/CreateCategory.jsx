@@ -77,15 +77,7 @@ export function CreateCategory({ onCreate }) {
           )}
         </div>
 
-        <div className="flex items-center gap-2">
-          <Switch
-            checked={form.featured}
-            onCheckedChange={(v) =>
-              setForm({ ...form, featured: v })
-            }
-          />
-          <span>Featured</span>
-        </div>
+   
 
         <Button onClick={handleSubmit}>Create Category</Button>
       </CardContent>

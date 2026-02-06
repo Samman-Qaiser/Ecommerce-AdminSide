@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { 
-  Upload, 
-  X, 
-  Plus, 
-  Image as ImageIcon, 
-  Video, 
-  Save, 
+import {
+  Upload,
+  X,
+  Plus,
+  Image as ImageIcon,
+  Video,
+  Save,
   Eye,
   Sparkles,
   IndianRupee,
@@ -165,10 +165,10 @@ const ProductAdd = () => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }
-    
+
     console.log('Product Data:', productData)
     alert('Product created successfully! (Check console for data)')
-    
+
     // Here you'll add Firebase logic later
     // await addDoc(collection(db, 'products'), productData)
   }
@@ -190,8 +190,8 @@ const ProductAdd = () => {
                 <p className="text-sm text-slate-500">Create and manage your product catalog</p>
               </div>
             </div>
-            
-     
+
+
           </div>
         </div>
       </div>
@@ -200,10 +200,10 @@ const ProductAdd = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
+
             {/* Left Column - Main Form */}
             <div className="lg:col-span-2 space-y-6">
-              
+
               {/* Basic Information Card */}
               <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200/60 overflow-hidden">
                 <div className="bg-linear-to-r from-slate-50 to-slate-100/50 px-6 py-4 border-b border-slate-200/60">
@@ -214,7 +214,7 @@ const ProductAdd = () => {
                     <h2 className="text-lg font-semibold text-slate-900">Basic Information</h2>
                   </div>
                 </div>
-                
+
                 <div className="p-6 space-y-5">
                   {/* Product Name */}
                   <div className="space-y-2">
@@ -311,7 +311,7 @@ const ProductAdd = () => {
                     <h2 className="text-lg font-semibold text-slate-900">Pricing</h2>
                   </div>
                 </div>
-                
+
                 <div className="p-6 space-y-5">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Selling Price */}
@@ -326,7 +326,7 @@ const ProductAdd = () => {
                           type="number"
                           placeholder="1800"
                           className="h-11 pl-10 bg-slate-50/50 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20"
-                          {...register('price', { 
+                          {...register('price', {
                             required: 'Price is required',
                             min: { value: 1, message: 'Price must be greater than 0' }
                           })}
@@ -378,7 +378,7 @@ const ProductAdd = () => {
                     <h2 className="text-lg font-semibold text-slate-900">Inventory</h2>
                   </div>
                 </div>
-                
+
                 <div className="p-6 space-y-5">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Stock Quantity */}
@@ -391,7 +391,7 @@ const ProductAdd = () => {
                         type="number"
                         placeholder="50"
                         className="h-11 bg-slate-50/50 border-slate-200 focus:border-orange-500 focus:ring-orange-500/20"
-                        {...register('stock', { 
+                        {...register('stock', {
                           required: 'Stock quantity is required',
                           min: { value: 0, message: 'Stock cannot be negative' }
                         })}
@@ -427,7 +427,7 @@ const ProductAdd = () => {
                     <h2 className="text-lg font-semibold text-slate-900">Media Upload</h2>
                   </div>
                 </div>
-                
+
                 <div className="p-6 space-y-6">
                   {/* Main Image */}
                   <div className="space-y-3">
@@ -444,7 +444,7 @@ const ProductAdd = () => {
                     <Label className="text-sm font-medium text-slate-700">
                       Product Images
                     </Label>
-                    
+
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                       {galleryImages.map((img, index) => (
                         <div key={index} className="relative group">
@@ -462,7 +462,7 @@ const ProductAdd = () => {
                           </button>
                         </div>
                       ))}
-                      
+
                       {/* Add More Button */}
                       <label className="group relative block w-full h-32 border-2 border-dashed border-slate-300   rounded-lg hover:border-purple-400 transition-all cursor-pointer bg-slate-50/50">
                         <input
@@ -487,7 +487,7 @@ const ProductAdd = () => {
                     <Label className="text-sm font-medium text-slate-700 flex items-center gap-2">
                       Product Video <span className="text-xs text-slate-500">(Optional)</span>
                     </Label>
-                    
+
                     {!productVideo ? (
                       <label className="group relative block w-full h-48 border-2 border-dashed border-slate-300 rounded-xl hover:border-purple-400 transition-all cursor-pointer overflow-hidden bg-linear-to-br from-slate-50 to-indigo-50/20">
                         <input
@@ -529,7 +529,7 @@ const ProductAdd = () => {
 
             {/* Right Column - Settings & Preview */}
             <div className="lg:col-span-1 space-y-6">
-              
+
               {/* Display Settings Card */}
               <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200/60 overflow-hidden sticky top-24">
                 <div className="bg-linear-to-r from-indigo-50 to-blue-50/50 px-6 py-4 border-b border-indigo-200/60">
@@ -540,7 +540,7 @@ const ProductAdd = () => {
                     <h2 className="text-lg font-semibold text-slate-900">Display Settings</h2>
                   </div>
                 </div>
-                
+
                 <div className="p-6 space-y-6">
                   {/* Featured Toggle */}
                   <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
@@ -562,27 +562,27 @@ const ProductAdd = () => {
                     <Label className="text-sm font-medium text-slate-700">
                       Product Badge
                     </Label>
-                <Select
-  onValueChange={(value) => {
-    if (value === "none") {
-      setValue("badge", "")
-    } else {
-      setValue("badge", value)
-    }
-  }}
->
-  <SelectTrigger className="h-11 bg-slate-50/50 w-full border-slate-200">
-    <SelectValue placeholder="No badge" />
-  </SelectTrigger>
+                    <Select
+                      onValueChange={(value) => {
+                        if (value === "none") {
+                          setValue("badge", "")
+                        } else {
+                          setValue("badge", value)
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="h-11 bg-slate-50/50 w-full border-slate-200">
+                        <SelectValue placeholder="No badge" />
+                      </SelectTrigger>
 
-  <SelectContent>
-    <SelectItem value="none">No Badge</SelectItem>
-    <SelectItem value="NEW"> New Arrival</SelectItem>
-    <SelectItem value="SALE"> On Sale</SelectItem>
-    <SelectItem value="BEST SELLER"> Best Seller</SelectItem>
-    <SelectItem value="TOP RATED"> Top Rated</SelectItem>
-  </SelectContent>
-</Select>
+                      <SelectContent>
+                        <SelectItem value="none">No Badge</SelectItem>
+                        <SelectItem value="NEW"> New Arrival</SelectItem>
+                        <SelectItem value="SALE"> On Sale</SelectItem>
+                        <SelectItem value="BEST SELLER"> Best Seller</SelectItem>
+                        <SelectItem value="TOP RATED"> Top Rated</SelectItem>
+                      </SelectContent>
+                    </Select>
 
                   </div>
 
@@ -626,7 +626,7 @@ const ProductAdd = () => {
                       <Save className="w-4 h-4 mr-2" />
                       Save Product
                     </Button>
-                    
+
                     <Button
                       type="button"
                       variant="outline"

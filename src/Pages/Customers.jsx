@@ -30,6 +30,7 @@ const Customers = () => {
             <TableRow className="bg-muted/50">
               <TableHead className="w-50">Customer</TableHead>
               <TableHead>Email</TableHead>
+              <TableHead>Order Id</TableHead>
               <TableHead>Status</TableHead>
             </TableRow>
           </TableHeader>
@@ -51,6 +52,9 @@ const Customers = () => {
 
               <TableCell className="text-sm">
                 johnsmith@gmail.com
+              </TableCell>
+               <TableCell className="text-sm">
+             ORD-101
               </TableCell>
 
               <TableCell>
