@@ -74,6 +74,12 @@ const ProductEdit = ({ product, onSave, onCancel }) => {
 
     onSave(updatedProduct)
   }
+ const handleVideoUpload = (file) => {
+  if (!file) return
+  const reader = new FileReader()
+  reader.onloadend = () => setProductVideo(reader.result)
+  reader.readAsDataURL(file)
+}
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -93,12 +99,14 @@ const ProductEdit = ({ product, onSave, onCancel }) => {
       <div className="space-y-4">
         <Label>Product Name <span className="text-red-500">*</span></Label>
         <Input
+          className='border border-gray-300'
           {...register('name', { required: 'Required' })}
         />
 
         <Label className='mb-2'>Description <span className="text-red-500">*</span></Label>
         <Textarea
           rows={4}
+          className='border border-gray-300'
           {...register('description', { required: 'Required' })}
         />
       </div>
@@ -113,7 +121,7 @@ const ProductEdit = ({ product, onSave, onCancel }) => {
             <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <Input
               type="number"
-              className="pl-10"
+              className="pl-10 border border-gray-300"
               {...register('price', { required: true })}
             />
           </div>
@@ -121,7 +129,7 @@ const ProductEdit = ({ product, onSave, onCancel }) => {
 
         <div>
           <Label className='mb-2'>Original Price</Label>
-          <Input type="number" {...register('originalPrice')} />
+          <Input type="number" {...register('originalPrice')} className='border border-gray-300' />
         </div>
       </div>
 
@@ -133,12 +141,12 @@ const ProductEdit = ({ product, onSave, onCancel }) => {
       )}
 
       <Separator />
-
       {/* INVENTORY */}
       <div>
         <Label className='mb-2'>Stock Quantity *</Label>
         <Input
           type="number"
+          className='border border-gray-300'
           {...register('stock', { required: true })}
         />
       </div>
@@ -195,6 +203,40 @@ const ProductEdit = ({ product, onSave, onCancel }) => {
       </div>
 
       <Separator />
+
+
+{/* PRODUCT VIDEO */}
+<div className="space-y-2">
+  <Label>Product Video (optional)</Label>
+
+  {productVideo && (
+    <div className="relative">
+      <video
+        src={productVideo}
+        controls
+        className="w-full h-48 rounded-lg border object-cover"
+      />
+      <button
+        type="button"
+        onClick={() => setProductVideo(null)}
+        className="absolute top-2 right-2 bg-red-600 text-white rounded p-1"
+      >
+        <X className="w-4 h-4" />
+      </button>
+    </div>
+  )}
+
+  <Input
+    type="file"
+    accept="video/mp4,video/webm"
+    onChange={(e) => handleVideoUpload(e.target.files[0])}
+  />
+
+  <p className="text-xs text-slate-500">
+    Recommended: MP4, max 20–30 seconds
+  </p>
+</div>
+
 
       {/* FEATURED */}
       <div className="flex items-center justify-between">
