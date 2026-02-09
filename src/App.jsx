@@ -13,6 +13,7 @@ import { queryClient } from './service/queryClient'
 import { ToastContainer } from 'react-toastify'
 import SubCategories from './Pages/SubCategories'
 import Categories from './Pages/Categories'
+import AllProduct from './Pages/AllProduct'
 function App() {
 
 
@@ -34,6 +35,7 @@ function App() {
     <Route path='/customers' element={<Customers />}/>
     <Route path='/orders' element={<Orders />}/>
     <Route path='/addproduct' element={<ProductAdd />}/>
+      <Route path='/products' element={<AllProduct />}/>
     <Route path='/subcategories' element={<SubCategories />}/>
     <Route path='categories' element={<Categories />}/>
   </Routes>
