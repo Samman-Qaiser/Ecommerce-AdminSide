@@ -1,7 +1,17 @@
 import { motion } from "framer-motion";
 import { Pencil, Trash2, MoreVertical } from "lucide-react";
 
+import {useState} from 'react'
 const AdminProductCard = ({ product, onEdit, onDelete }) => {
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const handleDelete = () => {
+  setProducts(prev =>
+    prev.filter(p => p.id !== deleteTarget.id)
+  );
+  setDeleteTarget(null);
+  setOpen(false);
+};
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}

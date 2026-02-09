@@ -157,7 +157,7 @@ const CreateSubCategory = ({ editData = null }) => {
             </Button>
           )}
 
-          <Button className="ml-auto" onClick={handleSubmit}>
+          <Button onClick={handleSubmit}>
             <Save className="w-4 h-4 mr-2" />
             {editData ? "Update" : "Create"}
           </Button>

@@ -12,6 +12,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,6 +32,7 @@ import { Pencil, Trash2 } from "lucide-react";
 
 export function EdDelCategory({ categories, onDelete, onUpdate }) {
   const [editCat, setEditCat] = useState(null);
+  const [deleteCat, setDeleteCat] = useState(null);
 
   const handleSave = () => {
     onUpdate(editCat);
@@ -67,10 +79,11 @@ export function EdDelCategory({ categories, onDelete, onUpdate }) {
                 <Button
                   size="icon"
                   variant="destructive"
-                  onClick={() => onDelete(cat.id)}
+                  onClick={() => setDeleteCat(cat)}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
+
               </TableCell>
             </TableRow>
           ))}
@@ -118,6 +131,31 @@ export function EdDelCategory({ categories, onDelete, onUpdate }) {
           )}
         </DialogContent>
       </Dialog>
+
+      <AlertDialog
+  open={!!deleteCat}
+  onOpenChange={() => setDeleteCat(null)}
+>
+  <AlertDialogContent>
+    <AlertDialogHeader>
+      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+      <AlertDialogDescription>
+        This action cannot be undone. This category will be permanently deleted.
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+
+    <AlertDialogFooter>
+      <AlertDialogCancel>Cancel</AlertDialogCancel>
+      <AlertDialogAction
+        className="bg-red-600 hover:bg-red-700"
+      
+      >
+        Delete
+      </AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>
+
     </>
   );
 }

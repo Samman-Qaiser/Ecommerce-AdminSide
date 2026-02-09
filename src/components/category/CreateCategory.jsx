@@ -79,7 +79,7 @@ export function CreateCategory({ onCreate }) {
 
    
 
-        <Button onClick={handleSubmit}>Create Category</Button>
+        <Button onClick={handleSubmit} >Create Category</Button>
       </CardContent>
     </Card>
   );

@@ -27,7 +27,16 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 const EdDelSubCategory = () => {
   const [subCategories, setSubCategories] = useState([
     {
@@ -50,7 +59,7 @@ const EdDelSubCategory = () => {
 
   const [open, setOpen] = useState(false);
   const [editData, setEditData] = useState(null);
-
+  const [deleteCat, setDeleteCat] = useState(null);
   const handleEdit = (sub) => {
     setEditData({ ...sub });
     setOpen(true);
@@ -71,6 +80,7 @@ const EdDelSubCategory = () => {
   };
 
   return (
+    <>
     <Card>
       <div className="p-6">
         <h2 className="text-xl font-semibold mb-4">
@@ -122,13 +132,12 @@ const EdDelSubCategory = () => {
                   </Button>
 
                   <Button
-                    size="sm"
-                    variant="destructive"
-                    disabled={sub.productCount > 0}
-                    onClick={() => handleDelete(sub.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  size="icon"
+                  variant="destructive"
+                  onClick={() => setDeleteCat(sub)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -209,6 +218,28 @@ const EdDelSubCategory = () => {
         </DialogContent>
       </Dialog>
     </Card>
+         <AlertDialog
+  open={!!deleteCat}
+  onOpenChange={() => setDeleteCat(null)}
+>
+  <AlertDialogContent>
+    <AlertDialogHeader>
+      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+      <AlertDialogDescription>
+        This action cannot be undone. This category will be permanently deleted.
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+
+    <AlertDialogFooter>
+      <AlertDialogCancel>Cancel</AlertDialogCancel>
+      <AlertDialogAction
+        className="bg-red-600 hover:bg-red-700">
+        Delete
+      </AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>
+</>
   );
 };
 
