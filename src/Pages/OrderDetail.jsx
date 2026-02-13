@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -110,132 +111,148 @@ const OrderDetails = () => {
   };
 const handleDownloadInvoice = () => {
   const doc = new jsPDF();
-
   const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
 
-  // === LOGO ===
+  const generatePDF = (logoImage = null) => {
+    // --- Colors & Styles ---
+    const primaryColor = [30, 41, 59]; // Dark Slate
+    const secondaryColor = [100, 116, 139]; // Muted Blue/Grey
+    const accentColor = [226, 232, 240]; // Light Grey
+
+    // 1. TOP HEADER ACCENT BAR
+    doc.setFillColor(...primaryColor);
+    doc.rect(0, 0, pageWidth, 15, "F");
+
+    // 2. LOGO & COMPANY INFO
+    if (logoImage) {
+      try {
+        doc.addImage(logoImage, "JPEG", 14, 22, 25, 25);
+      } catch (err) {
+        console.log("Logo error", err);
+      }
+    }
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor(...primaryColor);
+    doc.text("DORITAAGA", pageWidth - 14, 30, { align: "right" });
+
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(...secondaryColor);
+    doc.text([
+      "Doritaaga Ecommerce Store",
+      "GST: 06AKWPY3989Q1ZF",
+      "Haryana, India",
+      "support@doritaaga.com"
+    ], pageWidth - 14, 38, { align: "right", lineHeightFactor: 1.5 });
+
+    // 3. INVOICE TITLE & HORIZONTAL RULE
+    doc.setDrawColor(...accentColor);
+    doc.line(14, 60, pageWidth - 14, 60);
+    
+    doc.setFontSize(24);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(...primaryColor);
+    doc.text("INVOICE", 14, 75);
+
+    // 4. BILLING & ORDER DETAILS (TWO COLUMN LAYOUT)
+    doc.setFontSize(10);
+    doc.setTextColor(...secondaryColor);
+    doc.text("BILL TO:", 14, 85);
+    doc.text("ORDER DETAILS:", 120, 85);
+
+    doc.setTextColor(0, 0, 0);
+    doc.setFont("helvetica", "bold");
+    doc.text(order?.userDetails?.fullName || "Guest Customer", 14, 90);
+    doc.text(`Invoice #: ${order.orderNumber}`, 120, 90);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.text(order?.userDetails?.email || "", 14, 95);
+    doc.text(`Date: ${order.createdAt?.toDate().toLocaleDateString("en-GB") || ""}`, 120, 95);
+    doc.text(`Status: Paid`, 120, 100);
+
+    // 5. PRODUCTS TABLE
+    autoTable(doc, {
+      startY: 110,
+      head: [["Description", "Qty", "Price", "Total"]],
+      body: order.items?.map((item) => [
+        item.name,
+        item.quantity,
+        `Rs. ${item.price?.toLocaleString()}`,
+        `Rs. ${(item.price * item.quantity).toLocaleString()}`,
+      ]),
+      theme: "striped",
+      headStyles: {
+        fillColor: primaryColor,
+        fontSize: 10,
+        cellPadding: 4,
+      },
+      bodyStyles: {
+        fontSize: 9,
+        cellPadding: 4,
+      },
+      columnStyles: {
+        1: { halign: 'center' },
+        2: { halign: 'right' },
+        3: { halign: 'right' },
+      },
+    });
+
+    // 6. TOTALS SECTION
+    const finalY = doc.lastAutoTable.finalY + 10;
+    const summaryX = pageWidth - 70;
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    
+    const totals = [
+      ["Subtotal:", `Rs. ${order.subtotal?.toLocaleString()}`],
+      ["Shipping:", `Rs. ${order.shippingCost?.toLocaleString()}`],
+  
+    ];
+
+    totals.forEach((row, index) => {
+      doc.text(row[0], summaryX, finalY + (index * 7));
+      doc.text(row[1], pageWidth - 14, finalY + (index * 7), { align: "right" });
+    });
+
+    // Final Total Box
+    doc.setFillColor(...accentColor);
+    doc.rect(summaryX - 5, finalY + 18, 75, 12, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("TOTAL:", summaryX, finalY + 26);
+    doc.text(`Rs. ${order.total?.toLocaleString()}`, pageWidth - 14, finalY + 26, { align: "right" });
+
+    // 7. FOOTER
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "italic");
+    doc.setTextColor(...secondaryColor);
+    doc.text("Terms & Conditions:", 14, pageHeight - 25);
+    doc.text("1. Goods once sold will not be taken back.", 14, pageHeight - 20);
+    
+    doc.setFont("helvetica", "normal");
+    doc.text("Thank you for choosing Doritaaga!", pageWidth / 2, pageHeight - 10, { align: "center" });
+
+    doc.save(`Invoice_${order.orderNumber}.pdf`);
+  };
+
+  // --- LOGO LOADING LOGIC (SAME AS BEFORE) ---
   const img = new Image();
-  img.src = "./logo.jpeg";
-
-  doc.addImage(img, "JPEG", 14, 10, 30, 30);
-
-  // === COMPANY INFO ===
-  doc.setFontSize(16);
-  doc.setFont("helvetica", "bold");
-  doc.text("Doritaaga", pageWidth - 14, 20, { align: "right" });
-
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.text("Doritaaga Ecommerce Store", pageWidth - 14, 26, { align: "right" });
-  doc.text("GST:  06AKWPY3989Q1ZF", pageWidth - 14, 32, { align: "right" });
-  doc.text("Haryana, India ", pageWidth - 14, 38, { align: "right" });
-  doc.text("support@yourstore.com", pageWidth - 14, 44, { align: "right" });
-
-  // Line Separator
-  doc.setDrawColor(200);
-  doc.line(14, 50, pageWidth - 14, 50);
-
-  // === INVOICE TITLE ===
-  doc.setFontSize(18);
-  doc.setFont("helvetica", "bold");
-  doc.text("INVOICE", 14, 60);
-
-  // === ORDER INFO ===
-  doc.setFontSize(11);
-  doc.setFont("helvetica", "normal");
-
-  doc.text(`Invoice #: ${order.orderNumber}`, 14, 70);
-  doc.text(
-    `Date: ${
-      order.createdAt?.toDate().toLocaleDateString("en-GB") || ""
-    }`,
-    14,
-    78
-  );
-
-  doc.text(
-    `Customer: ${order?.userDetails?.fullName || ""}`,
-    14,
-    88
-  );
-  doc.text(
-    `Email: ${order?.userDetails?.email || ""}`,
-    14,
-    96
-  );
-
-  // === PRODUCTS TABLE ===
-  autoTable(doc, {
-    startY: 105,
-    head: [["Product", "Qty", "Unit Price", "Total"]],
-    body: order.items?.map((item) => [
-      item.name,
-      item.quantity,
-      `Rs. ${item.price?.toLocaleString()}`,
-      `Rs. ${(item.price * item.quantity).toLocaleString()}`,
-    ]),
-    theme: "grid",
-    headStyles: {
-      fillColor: [30, 41, 59], // slate-800
-      textColor: 255,
-    },
-  });
-
-  const finalY = doc.lastAutoTable.finalY + 10;
-
-  // === TOTALS BOX ===
-  doc.setFontSize(11);
-
-  doc.text(
-    `Subtotal: Rs. ${(order.subtotal || 0).toLocaleString()}`,
-    pageWidth - 14,
-    finalY,
-    { align: "right" }
-  );
-
-  doc.text(
-    `Shipping: Rs. ${(order.shipping || 0).toLocaleString()}`,
-    pageWidth - 14,
-    finalY + 8,
-    { align: "right" }
-  );
-
-  doc.text(
-    `Tax: Rs. ${(order.tax || 0).toLocaleString()}`,
-    pageWidth - 14,
-    finalY + 16,
-    { align: "right" }
-  );
-
-  doc.setFontSize(14);
-  doc.setFont("helvetica", "bold");
-  doc.text(
-    `Total: Rs. ${(order.total || 0).toLocaleString()}`,
-    pageWidth - 14,
-    finalY + 28,
-    { align: "right" }
-  );
-
-  // === FOOTER ===
-  doc.setFontSize(9);
-  doc.setFont("helvetica", "normal");
-  doc.text(
-    "Thank you for shopping with us!",
-    pageWidth / 2,
-    285,
-    { align: "center" }
-  );
-
-  doc.text(
-    "This is a computer-generated invoice.",
-    pageWidth / 2,
-    292,
-    { align: "center" }
-  );
-
-  doc.save(`invoice_${order.orderNumber}.pdf`);
+  img.crossOrigin = "anonymous";
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width; canvas.height = img.height;
+    canvas.getContext('2d').drawImage(img, 0, 0);
+    generatePDF(canvas.toDataURL('image/jpeg'));
+  };
+  img.onerror = () => generatePDF();
+  img.src = "/logo.jpeg"; 
+  setTimeout(() => { if (!img.complete) generatePDF(); }, 2000);
 };
-
 const handlePrint = () => {
   window.print();
 };
@@ -387,7 +404,7 @@ useEffect(()=>{
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="animate-spin text-blue-500" size={48} />
           <p className="text-slate-600 font-medium">Loading order details...</p>
@@ -399,7 +416,7 @@ useEffect(()=>{
   // Error state
   if (error || !order) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 max-w-md text-center">
           <div className="p-4 rounded-full bg-red-50">
             <AlertCircle className="text-red-500" size={48} />
@@ -425,8 +442,8 @@ useEffect(()=>{
   const timeline = generateTimeline(order);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 p-6 lg:p-8">
-      <div className="max-w-[1400px] mx-auto space-y-6">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-50 p-6 lg:p-8">
+      <div className="max-w-350 mx-auto space-y-6">
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="flex items-center gap-4">
@@ -439,7 +456,7 @@ useEffect(()=>{
               <ArrowLeft size={18} />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold tracking-tight bg-linear-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
                 Order Details
               </h1>
               <p className="text-slate-600 mt-1">Order #{order.orderNumber}</p>
@@ -512,7 +529,7 @@ useEffect(()=>{
                     onValueChange={handleStatusChange}
                     disabled={updateStatus.isPending}
                   >
-                    <SelectTrigger className="w-[160px] border-slate-200">
+                    <SelectTrigger className="w-40 border-slate-200">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
