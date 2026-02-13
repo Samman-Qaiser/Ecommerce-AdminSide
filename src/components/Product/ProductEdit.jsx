@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import { Progress } from '@/components/ui/Progress.jsx';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import { useActiveSubCategories } from '../../tanstackhooks/useSubCategories';
