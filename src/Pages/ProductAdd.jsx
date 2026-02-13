@@ -1,649 +1,418 @@
-import React, { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import React, { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 import {
-  Upload,
-  X,
-  Plus,
-  Image as ImageIcon,
-  Video,
   Save,
-  Eye,
-  Sparkles,
+  X,
+  Upload,
   IndianRupee,
-  Package,
-  Tag,
   FileText,
-  ChevronDown
-} from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
+  Tag,
+  Loader2,
+  Image as ImageIcon,
+  Video as VideoIcon,
+  PackagePlus,
+  Info,
+  Layers,
+  ShoppingBag,
+  Zap
+} from 'lucide-react';
+
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
+} from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
-const ProductAdd = () => {
-  const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm({
+import { useActiveSubCategories } from '../tanstackhooks/useSubCategories';
+import { useCreateProduct } from '../tanstackhooks/useProducts';
+
+const BADGE_OPTIONS = ['Top Rated', 'New Arrival', 'Best Seller'];
+const SIZE_OPTIONS = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+
+const ProductAdd = ({ onSuccess, onCancel }) => {
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+    watch,
+  } = useForm({
     defaultValues: {
       name: '',
       description: '',
       price: '',
       originalPrice: '',
-      category: '',
-      categoryId: '',
-      stock: '',
-      featured: false,
-      badge: '',
-      status: 'active',
+      stockQuantity: '',
+      subCategoryId: '',
+      fabric: ''
     }
-  })
+  });
 
-  // State for images and video
-  const [mainImage, setMainImage] = useState(null)
-  const [galleryImages, setGalleryImages] = useState([])
-  const [productVideo, setProductVideo] = useState(null)
-  const [previewMode, setPreviewMode] = useState(false)
+  const { data: subCategories, isLoading: loadingSubCategories } = useActiveSubCategories();
+  const createProduct = useCreateProduct();
 
-  // Watch form values for preview
-  const formValues = watch()
+  const [imageFiles, setImageFiles] = useState([]);
+  const [videoFile, setVideoFile] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(null);
+  const [selectedBadges, setSelectedBadges] = useState([]);
+  const [selectedSizes, setSelectedSizes] = useState([]);
+  const [colorInput, setColorInput] = useState('');
+  const [colors, setColors] = useState([]);
+  const [washcareInput, setWashcareInput] = useState('');
+  const [washcare, setWashcare] = useState([]);
 
-  // Main Categories with Subcategories
-  const categories = {
-    sarees: {
-      name: 'Sarees',
-      id: 'cat_sarees',
-      subcategories: [
-        { id: 'sub_silk_saree', name: 'Silk Sarees' },
-        { id: 'sub_cotton_saree', name: 'Cotton Sarees' },
-        { id: 'sub_designer_saree', name: 'Designer Sarees' },
-        { id: 'sub_banarasi_saree', name: 'Banarasi Sarees' },
-        { id: 'sub_kanjivaram_saree', name: 'Kanjivaram Sarees' },
-        { id: 'sub_georgette_saree', name: 'Georgette Sarees' },
-        { id: 'sub_chiffon_saree', name: 'Chiffon Sarees' },
-        { id: 'sub_linen_saree', name: 'Linen Sarees' },
-        // Add more as needed
-      ]
-    },
-    suits: {
-      name: 'Suits',
-      id: 'cat_suits',
-      subcategories: [
-        { id: 'sub_anarkali_suit', name: 'Anarkali Suits' },
-        { id: 'sub_punjabi_suit', name: 'Punjabi Suits' },
-        { id: 'sub_palazzo_suit', name: 'Palazzo Suits' },
-        { id: 'sub_straight_suit', name: 'Straight Suits' },
-        { id: 'sub_sharara_suit', name: 'Sharara Suits' },
-        { id: 'sub_churidar_suit', name: 'Churidar Suits' },
-        { id: 'sub_patiala_suit', name: 'Patiala Suits' },
-        { id: 'sub_cotton_suit', name: 'Cotton Suits' },
-        // Add more as needed
-      ]
-    }
-  }
+  const formValues = watch();
 
-  // Get all subcategories for dropdown
-  const getAllSubcategories = () => {
-    const allSubs = []
-    Object.values(categories).forEach(cat => {
-      cat.subcategories.forEach(sub => {
-        allSubs.push({
-          ...sub,
-          parentName: cat.name
-        })
-      })
-    })
-    return allSubs
-  }
-
-  // Handle Main Image Upload
-  const handleMainImageChange = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setMainImage(reader.result)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
-  // Handle Gallery Images Upload
-  const handleGalleryImagesChange = (e) => {
-    const files = Array.from(e.target.files)
-    files.forEach(file => {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setGalleryImages(prev => [...prev, reader.result])
-      }
-      reader.readAsDataURL(file)
-    })
-  }
-
-  // Handle Video Upload
-  const handleVideoChange = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setProductVideo(reader.result)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
-  // Remove Gallery Image
-  const removeGalleryImage = (index) => {
-    setGalleryImages(prev => prev.filter((_, i) => i !== index))
-  }
-
-  // Calculate discount percentage
   const calculateDiscount = () => {
-    const price = parseFloat(formValues.price) || 0
-    const originalPrice = parseFloat(formValues.originalPrice) || 0
-    if (originalPrice > price && price > 0) {
-      return Math.round(((originalPrice - price) / originalPrice) * 100)
+    const price = Number(formValues.price) || 0;
+    const original = Number(formValues.originalPrice) || 0;
+    if (original > price && price > 0) {
+      return Math.round(((original - price) / original) * 100);
     }
-    return 0
-  }
+    return 0;
+  };
 
-  // Form Submit
-  const onSubmit = (data) => {
-    const productData = {
-      ...data,
-      image: mainImage,
-      images: galleryImages,
-      video: productVideo,
-      inStock: parseInt(data.stock) > 0,
-      discount: calculateDiscount(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+  const handleImageSelect = (files) => {
+    const fileArray = Array.from(files);
+    setImageFiles(prev => [...prev, ...fileArray]);
+  };
+
+  const removeImage = (index) => {
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const toggleBadge = (badge) => {
+    setSelectedBadges(prev => prev.includes(badge) ? prev.filter(b => b !== badge) : [...prev, badge]);
+  };
+
+  const toggleSize = (size) => {
+    setSelectedSizes(prev => prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]);
+  };
+
+  const addColor = () => {
+    if (colorInput.trim() && !colors.includes(colorInput.trim())) {
+      setColors(prev => [...prev, colorInput.trim()]);
+      setColorInput('');
     }
+  };
 
-    console.log('Product Data:', productData)
-    alert('Product created successfully! (Check console for data)')
+  const addWashcare = () => {
+    if (washcareInput.trim() && !washcare.includes(washcareInput.trim())) {
+      setWashcare(prev => [...prev, washcareInput.trim()]);
+      setWashcareInput('');
+    }
+  };
 
-    // Here you'll add Firebase logic later
-    // await addDoc(collection(db, 'products'), productData)
-  }
+  const onSubmit = async (data) => {
+    try {
+      const productData = {
+        name: data.name,
+        slug: data.name.toLowerCase().replace(/\s+/g, '-'),
+        description: data.description,
+        price: Number(data.price),
+        originalPrice: Number(data.originalPrice) || Number(data.price),
+        discount: calculateDiscount(),
+        stockQuantity: Number(data.stockQuantity),
+        subCategoryId: data.subCategoryId || null,
+        imageFiles,
+        videoFile,
+        badges: selectedBadges,
+        details: { fabric: data.fabric || '', colors, sizes: selectedSizes, washcare }
+      };
+      await createProduct.mutateAsync({ productData, onProgress: setUploadProgress }, { onSuccess: () => onSuccess?.() });
+    } catch (error) { console.error('Submit error:', error); }
+  };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
-      {/* Header */}
-      <div className="bg-white/80 backdrop-blur-xl border-b border-slate-200/60 sticky top-0 z-50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-linear-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                <Plus className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-linear-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                  Add New Product
-                </h1>
-                <p className="text-sm text-slate-500">Create and manage your product catalog</p>
-              </div>
-            </div>
-
-
+    <form onSubmit={handleSubmit(onSubmit)} className="max-w-300 mx-auto bg-slate-50/50 min-h-screen pb-20">
+      
+      {/* --- STICKY HEADER --- */}
+      <div className="sticky top-0 z-30 flex items-center justify-between px-6 py-4 bg-white/80 backdrop-blur-md border-b mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
+            <PackagePlus className="w-5 h-5 text-white" />
           </div>
+          <div>
+            <h2 className="text-xl font-bold text-slate-900">Create Product</h2>
+            <p className="text-xs text-slate-500 font-medium">Add a new item to your storefront</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" type="button" onClick={onCancel} className="hover:bg-slate-100">Cancel</Button>
+          <Button type="submit" disabled={createProduct.isPending || imageFiles.length === 0} className="bg-indigo-600 hover:bg-indigo-700 shadow-md">
+            {createProduct.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+            Publish Product
+          </Button>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-            {/* Left Column - Main Form */}
-            <div className="lg:col-span-2 space-y-6">
-
-              {/* Basic Information Card */}
-              <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200/60 overflow-hidden">
-                <div className="bg-linear-to-r from-slate-50 to-slate-100/50 px-6 py-4 border-b border-slate-200/60">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                      <FileText className="w-4 h-4 text-slate-700" />
-                    </div>
-                    <h2 className="text-lg font-semibold text-slate-900">Basic Information</h2>
-                  </div>
+      <div className="px-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* --- LEFT COLUMN: GENERAL INFO & MEDIA --- */}
+        <div className="lg:col-span-2 space-y-6">
+          
+          {/* Progress Alert */}
+          {uploadProgress && (
+            <Alert className="bg-indigo-50 border-indigo-200">
+              <Loader2 className="h-4 w-4 animate-spin text-indigo-600" />
+              <AlertDescription className="w-full">
+                <div className="flex justify-between mb-1">
+                  <span className="text-sm font-semibold text-indigo-700">Uploading Assets...</span>
+                  <span className="text-sm font-bold text-indigo-700">{uploadProgress.progress}%</span>
                 </div>
+                <Progress value={uploadProgress.progress} className="h-2 bg-indigo-200" />
+              </AlertDescription>
+            </Alert>
+          )}
 
-                <div className="p-6 space-y-5">
-                  {/* Product Name */}
-                  <div className="space-y-2">
-                    <Label htmlFor="name" className="text-sm font-medium text-slate-700 flex items-center gap-2">
-                      Product Name <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="name"
-                      placeholder="e.g., Royal Blue Banarasi Silk Saree"
-                      className="h-11 bg-slate-50/50 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20"
-                      {...register('name', { required: 'Product name is required' })}
-                    />
-                    {errors.name && (
-                      <p className="text-xs text-red-500 flex items-center gap-1">
-                        {errors.name.message}
-                      </p>
-                    )}
+          {/* Basic Information */}
+          <Card className="border-none shadow-sm shadow-slate-200">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Info className="w-4 h-4 text-indigo-500" /> General Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-2">
+                <Label htmlFor="name" className="text-slate-700 font-semibold">Product Title</Label>
+                <Input 
+                  id="name"
+                  placeholder="e.g. Premium Oversized Cotton Hoodie" 
+                  className={`bg-slate-50/50 focus-visible:ring-indigo-500 ${errors.name ? 'border-red-500' : 'border-slate-200'}`}
+                  {...register('name', { required: 'Product name is required' })}
+                />
+                {errors.name && <p className="text-xs text-red-500 font-medium">{errors.name.message}</p>}
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="description" className="text-slate-700 font-semibold">Description</Label>
+                <Textarea 
+                  id="description"
+                  rows={5} 
+                  placeholder="Write a compelling description..." 
+                  className="bg-slate-50/50 resize-none border-slate-200 focus-visible:ring-indigo-500"
+                  {...register('description', { required: 'Description is required' })}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Media Upload */}
+          <Card className="border-none shadow-sm shadow-slate-200">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <ImageIcon className="w-4 h-4 text-indigo-500" /> Product Media
+              </CardTitle>
+              <CardDescription>Upload high-quality images and a showcase video.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              
+              {/* Image Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {imageFiles.map((file, i) => (
+                  <div key={i} className="relative group aspect-square rounded-xl overflow-hidden border-2 border-slate-100 shadow-sm">
+                    <img src={URL.createObjectURL(file)} className="h-full w-full object-cover transition group-hover:scale-105" alt="" />
+                    <button type="button" onClick={() => removeImage(i)} className="absolute top-2 right-2 bg-white/90 hover:bg-red-500 hover:text-white p-1.5 rounded-full shadow-lg transition-colors">
+                      <X className="w-3 h-3" />
+                    </button>
                   </div>
-
-                  {/* Description */}
-                  <div className="space-y-2">
-                    <Label htmlFor="description" className="text-sm font-medium text-slate-700 flex items-center gap-2">
-                      Description <span className="text-red-500">*</span>
-                    </Label>
-                    <Textarea
-                      id="description"
-                      placeholder="Describe your product in detail... (features, material, occasion, etc.)"
-                      rows={5}
-                      className="resize-none bg-slate-50/50 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20"
-                      {...register('description', { required: 'Description is required' })}
-                    />
-                    {errors.description && (
-                      <p className="text-xs text-red-500">{errors.description.message}</p>
-                    )}
+                ))}
+                
+                <Label htmlFor="image-upload" className="flex flex-col items-center justify-center aspect-square border-2 border-dashed border-slate-200 rounded-xl hover:bg-slate-50 hover:border-indigo-400 cursor-pointer transition-all group">
+                  <div className="bg-slate-100 p-3 rounded-full group-hover:bg-indigo-50 transition-colors">
+                    <Upload className="w-5 h-5 text-slate-400 group-hover:text-indigo-500" />
                   </div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mt-2">Add Image</span>
+                  <Input type="file" multiple accept="image/*" id="image-upload" className="hidden" onChange={(e) => handleImageSelect(e.target.files)} />
+                </Label>
+              </div>
 
-                  {/* Category & Subcategory */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-                        Category <span className="text-red-500">*</span>
-                      </Label>
-                      <Select
-                        onValueChange={(value) => {
-                          const selected = getAllSubcategories().find(sub => sub.id === value)
-                          setValue('category', selected.name)
-                          setValue('categoryId', selected.id)
-                        }}
-                      >
-                        <SelectTrigger className="h-11 bg-slate-50/50 border-slate-200">
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.values(categories).map(cat => (
-                            <React.Fragment key={cat.id}>
-                              <div className="px-2 py-1.5 text-xs font-semibold text-slate-500 bg-slate-50">
-                                {cat.name}
-                              </div>
-                              {cat.subcategories.map(sub => (
-                                <SelectItem key={sub.id} value={sub.id}>
-                                  {sub.name}
-                                </SelectItem>
-                              ))}
-                            </React.Fragment>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {errors.category && (
-                        <p className="text-xs text-red-500">{errors.category.message}</p>
-                      )}
+              <Separator className="bg-slate-100" />
+
+              {/* Video Section */}
+              <div className="space-y-3">
+                <Label className="text-slate-700 font-semibold flex items-center gap-2">
+                  <VideoIcon className="w-4 h-4" /> Product Video <span className="text-[10px] text-slate-400 font-normal">(Optional)</span>
+                </Label>
+                {videoFile ? (
+                  <div className="relative rounded-xl overflow-hidden border">
+                    <video src={URL.createObjectURL(videoFile)} className="w-full h-48 object-cover" controls />
+                    <Button size="icon" variant="destructive" className="absolute top-2 right-2 h-8 w-8" onClick={() => setVideoFile(null)}><X className="w-4 h-4" /></Button>
+                  </div>
+                ) : (
+                  <Label htmlFor="video-upload" className="flex items-center gap-4 p-4 border-2 border-dashed border-slate-200 rounded-xl hover:bg-slate-50 cursor-pointer transition-all">
+                    <div className="bg-indigo-50 p-3 rounded-lg"><VideoIcon className="w-5 h-5 text-indigo-500" /></div>
+                    <div className="text-left">
+                      <p className="text-sm font-semibold text-slate-700">Upload Video</p>
+                      <p className="text-xs text-slate-400">MP4, max 30s recommended</p>
                     </div>
+                    <Input type="file" accept="video/*" id="video-upload" className="hidden" onChange={(e) => setVideoFile(e.target.files[0])} />
+                  </Label>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+             {/* Specifications Card */}
+          <Card className="border-none shadow-sm shadow-slate-200">
+            <CardHeader>
+              <CardTitle className="text-lg">Specifications</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label className="text-slate-600 text-xs">Fabric Detail</Label>
+                <Input {...register('fabric')} placeholder="Linen, Cotton..." className="mt-1 bg-slate-50/50" />
+              </div>
 
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-slate-700">
-                        Selected Category
-                      </Label>
-                      <div className="h-11 px-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center">
-                        <span className="text-sm text-slate-600">
-                          {formValues.category || 'None selected'}
-                        </span>
-                      </div>
+              <div>
+                <Label className="text-slate-600 text-xs font-bold mb-2 block uppercase tracking-tighter">Sizes Available</Label>
+                <div className="flex flex-wrap gap-2">
+                  {SIZE_OPTIONS.map((size) => (
+                    <div
+                      key={size}
+                      onClick={() => toggleSize(size)}
+                      className={`h-9 w-9 flex items-center justify-center rounded-lg cursor-pointer border-2 transition-all font-bold text-xs ${
+                        selectedSizes.includes(size) 
+                        ? 'border-indigo-600 bg-indigo-50 text-indigo-600' 
+                        : 'border-slate-100 bg-slate-50 text-slate-400 hover:border-slate-300'
+                      }`}
+                    >
+                      {size}
                     </div>
-                  </div>
+                  ))}
                 </div>
               </div>
 
-              {/* Pricing Card */}
-              <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200/60 overflow-hidden">
-                <div className="bg-linear-to-r from-emerald-50 to-teal-50/50 px-6 py-4 border-b border-emerald-200/60">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                      <IndianRupee className="w-4 h-4 text-emerald-700" />
-                    </div>
-                    <h2 className="text-lg font-semibold text-slate-900">Pricing</h2>
+              {/* Tag Style Inputs for Colors & Washcare */}
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-slate-600 text-xs">Colors</Label>
+                  <div className="flex gap-2 mt-1">
+                    <Input value={colorInput} onChange={(e) => setColorInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addColor())} placeholder="Red..." className="h-8 text-sm" />
+                    <Button type="button" onClick={addColor} variant="outline" size="sm" className="h-8">Add</Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {colors.map((c, i) => (
+                      <Badge key={i} variant="secondary" className="bg-slate-200 text-slate-700 hover:bg-red-100 hover:text-red-700 transition-colors cursor-pointer" onClick={() => setColors(prev => prev.filter((_, idx) => idx !== i))}>
+                        {c} <X className="w-2 h-2 ml-1" />
+                      </Badge>
+                    ))}
                   </div>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-                <div className="p-6 space-y-5">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Selling Price */}
-                    <div className="space-y-2">
-                      <Label htmlFor="price" className="text-sm font-medium text-slate-700 flex items-center gap-2">
-                        Selling Price <span className="text-red-500">*</span>
-                      </Label>
-                      <div className="relative">
-                        <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <Input
-                          id="price"
-                          type="number"
-                          placeholder="1800"
-                          className="h-11 pl-10 bg-slate-50/50 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20"
-                          {...register('price', {
-                            required: 'Price is required',
-                            min: { value: 1, message: 'Price must be greater than 0' }
-                          })}
-                        />
-                      </div>
-                      {errors.price && (
-                        <p className="text-xs text-red-500">{errors.price.message}</p>
-                      )}
-                    </div>
+        {/* --- RIGHT COLUMN: PRICING & CATEGORY --- */}
+        <div className="space-y-6">
+          
+          {/* Pricing Card */}
+          <Card className="border-none shadow-sm shadow-slate-200 overflow-hidden">
+            <div className="h-1.5 bg-indigo-500 w-full" />
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <ShoppingBag className="w-4 h-4 text-indigo-500" /> Pricing & Inventory
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-2">
+                <Label className="text-slate-700 font-semibold">Selling Price</Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-semibold text-sm">₹</span>
+                  <Input type="number" {...register('price', { required: true })} className="pl-7 bg-slate-50/50 border-slate-200 focus-visible:ring-indigo-500" />
+                </div>
+              </div>
 
-                    {/* Original Price */}
-                    <div className="space-y-2">
-                      <Label htmlFor="originalPrice" className="text-sm font-medium text-slate-700">
-                        Original Price (Optional)
-                      </Label>
-                      <div className="relative">
-                        <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <Input
-                          id="originalPrice"
-                          type="number"
-                          placeholder="2500"
-                          className="h-11 pl-10 bg-slate-50/50 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20"
-                          {...register('originalPrice')}
-                        />
-                      </div>
-                      <p className="text-xs text-slate-500">For showing discount</p>
-                    </div>
-                  </div>
+              <div className="grid gap-2">
+                <Label className="text-slate-700 font-semibold">MRP (Original Price)</Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-semibold text-sm">₹</span>
+                  <Input type="number" {...register('originalPrice')} className="pl-7 bg-slate-50/50 border-slate-200 focus-visible:ring-indigo-500" />
+                </div>
+              </div>
 
-                  {/* Discount Badge */}
-                  {calculateDiscount() > 0 && (
-                    <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
-                      <Tag className="w-4 h-4 text-emerald-600" />
-                      <span className="text-sm font-medium text-emerald-700">
-                        {calculateDiscount()}% Discount will be displayed
-                      </span>
-                    </div>
+              {calculateDiscount() > 0 && (
+                <div className="bg-emerald-50 text-emerald-700 p-2 rounded-lg text-xs font-bold flex items-center gap-2 animate-pulse">
+                  <Zap className="w-3 h-3 fill-emerald-700" /> {calculateDiscount()}% Discount Applied
+                </div>
+              )}
+
+              <Separator className="bg-slate-100" />
+
+              <div className="grid gap-2">
+                <Label className="text-slate-700 font-semibold">Stock Quantity</Label>
+                <Input type="number" {...register('stockQuantity', { required: true })} className="bg-slate-50/50 border-slate-200 focus-visible:ring-indigo-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Organization Card */}
+          <Card className="border-none shadow-sm shadow-slate-200">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Layers className="w-4 h-4 text-indigo-500" /> Organization
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <div className="grid gap-2">
+                <Label className="text-slate-700 font-semibold">Category</Label>
+                <Controller
+                  name="subCategoryId"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="bg-slate-50/50 w-full border-slate-200">
+                        <SelectValue placeholder="Select Category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {subCategories?.map((cat) => (
+                          <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   )}
-                </div>
+                />
               </div>
 
-              {/* Inventory Card */}
-              <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200/60 overflow-hidden">
-                <div className="bg-linear-to-r from-orange-50 to-amber-50/50 px-6 py-4 border-b border-orange-200/60">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                      <Package className="w-4 h-4 text-orange-700" />
-                    </div>
-                    <h2 className="text-lg font-semibold text-slate-900">Inventory</h2>
-                  </div>
-                </div>
-
-                <div className="p-6 space-y-5">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Stock Quantity */}
-                    <div className="space-y-2">
-                      <Label htmlFor="stock" className="text-sm font-medium text-slate-700 flex items-center gap-2">
-                        Stock Quantity <span className="text-red-500">*</span>
-                      </Label>
-                      <Input
-                        id="stock"
-                        type="number"
-                        placeholder="50"
-                        className="h-11 bg-slate-50/50 border-slate-200 focus:border-orange-500 focus:ring-orange-500/20"
-                        {...register('stock', {
-                          required: 'Stock quantity is required',
-                          min: { value: 0, message: 'Stock cannot be negative' }
-                        })}
-                      />
-                      {errors.stock && (
-                        <p className="text-xs text-red-500">{errors.stock.message}</p>
-                      )}
-                    </div>
-
-                    {/* Stock Status Display */}
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-slate-700">
-                        Stock Status
-                      </Label>
-                      <div className="h-11 px-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center   gap-2">
-                        <div className={`w-2 h-2 rounded-full ${parseInt(formValues.stock || 0) > 0 ? 'bg-green-500' : 'bg-red-500'}`} />
-                        <span className="text-sm text-slate-600">
-                          {parseInt(formValues.stock || 0) > 0 ? 'In Stock' : 'Out of Stock'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Media Upload Card */}
-              <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200/60 overflow-hidden">
-                <div className="bg-linear-to-r from-purple-50 to-pink-50/50 px-6 py-4 border-b border-purple-200/60">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                      <ImageIcon className="w-4 h-4 text-purple-700" />
-                    </div>
-                    <h2 className="text-lg font-semibold text-slate-900">Media Upload</h2>
-                  </div>
-                </div>
-
-                <div className="p-6 space-y-6">
-                  {/* Main Image */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-                      Main Product Image <span className="text-red-500">*</span>
-                    </Label>
-
-                  </div>
-
-                  <Separator />
-
-                  {/* Gallery Images */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-medium text-slate-700">
-                      Product Images
-                    </Label>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                      {galleryImages.map((img, index) => (
-                        <div key={index} className="relative group">
-                          <img
-                            src={img}
-                            alt={`Gallery ${index + 1}`}
-                            className="w-full h-32 object-cover rounded-lg border-2 border-slate-200"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeGalleryImage(index)}
-                            className="absolute top-2 right-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ))}
-
-                      {/* Add More Button */}
-                      <label className="group relative block w-full h-32 border-2 border-dashed border-slate-300   rounded-lg hover:border-purple-400 transition-all cursor-pointer bg-slate-50/50">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          onChange={handleGalleryImagesChange}
-                          className="hidden"
-                        />
-                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                          <Plus className="w-6 h-6 text-slate-400 group-hover:text-purple-500 transition-colors" />
-                          <span className="text-xs text-slate-500 mt-1">Add Images</span>
-                        </div>
-                      </label>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  {/* Product Video */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-                      Product Video <span className="text-xs text-slate-500">(Optional)</span>
-                    </Label>
-
-                    {!productVideo ? (
-                      <label className="group relative block w-full h-48 border-2 border-dashed border-slate-300 rounded-xl hover:border-purple-400 transition-all cursor-pointer overflow-hidden bg-linear-to-br from-slate-50 to-indigo-50/20">
-                        <input
-                          type="file"
-                          accept="video/*"
-                          onChange={handleVideoChange}
-                          className="hidden"
-                        />
-                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                          <div className="w-14 h-14 bg-white rounded-xl shadow-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <Video className="w-7 h-7 text-indigo-500" />
-                          </div>
-                          <div className="text-center">
-                            <p className="text-sm font-medium text-slate-700">Upload product video</p>
-                            <p className="text-xs text-slate-500 mt-1">MP4, MOV, WebM up to 50MB</p>
-                          </div>
-                        </div>
-                      </label>
-                    ) : (
-                      <div className="relative group">
-                        <video
-                          src={productVideo}
-                          controls
-                          className="w-full h-48 object-cover rounded-xl border-2 border-purple-200"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setProductVideo(null)}
-                          className="absolute top-3 right-3 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Column - Settings & Preview */}
-            <div className="lg:col-span-1 space-y-6">
-
-              {/* Display Settings Card */}
-              <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200/60 overflow-hidden sticky top-24">
-                <div className="bg-linear-to-r from-indigo-50 to-blue-50/50 px-6 py-4 border-b border-indigo-200/60">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                      <Sparkles className="w-4 h-4 text-indigo-700" />
-                    </div>
-                    <h2 className="text-lg font-semibold text-slate-900">Display Settings</h2>
-                  </div>
-                </div>
-
-                <div className="p-6 space-y-6">
-                  {/* Featured Toggle */}
-                  <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
-                    <div className="flex-1">
-                      <Label htmlFor="featured" className="text-sm font-medium text-slate-700 cursor-pointer">
-                        Featured Product
-                      </Label>
-                      <p className="text-xs text-slate-500 mt-1">Show on homepage</p>
-                    </div>
-                    <Switch
-                      id="featured"
-                      checked={formValues.featured}
-                      onCheckedChange={(checked) => setValue('featured', checked)}
-                    />
-                  </div>
-
-                  {/* Badge Selection */}
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">
-                      Product Badge
-                    </Label>
-                    <Select
-                      onValueChange={(value) => {
-                        if (value === "none") {
-                          setValue("badge", "")
-                        } else {
-                          setValue("badge", value)
-                        }
-                      }}
-                    >
-                      <SelectTrigger className="h-11 bg-slate-50/50 w-full border-slate-200">
-                        <SelectValue placeholder="No badge" />
-                      </SelectTrigger>
-
-                      <SelectContent>
-                        <SelectItem value="none">No Badge</SelectItem>
-                        <SelectItem value="NEW"> New Arrival</SelectItem>
-                        <SelectItem value="SALE"> On Sale</SelectItem>
-                        <SelectItem value="BEST SELLER"> Best Seller</SelectItem>
-                        <SelectItem value="TOP RATED"> Top Rated</SelectItem>
-                      </SelectContent>
-                    </Select>
-
-                  </div>
-
-                  {/* Status Selection */}
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-                      Status <span className="text-red-500">*</span>
-                    </Label>
-                    <Select
-                      defaultValue="active"
-                      onValueChange={(value) => setValue('status', value)}
-                    >
-                      <SelectTrigger className="h-11 w-full bg-slate-50/50 border-slate-200">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="active">
-                          <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 bg-green-500 rounded-full" />
-                            Active
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="draft">
-                          <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 bg-gray-400 rounded-full" />
-                            Draft
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <Separator />
-
-                  {/* Submit Buttons */}
-                  <div className="space-y-3">
-                    <Button
-                      type="submit"
-                      className="w-full h-12 bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 transition-all"
-                    >
-                      <Save className="w-4 h-4 mr-2" />
-                      Save Product
-                    </Button>
-
-                    <Button
+              <div className="space-y-3">
+                <Label className="text-slate-700 font-semibold text-xs uppercase tracking-wider">Product Badges</Label>
+                <div className="flex flex-wrap gap-2">
+                  {BADGE_OPTIONS.map((badge) => (
+                    <button
+                      key={badge}
                       type="button"
-                      variant="outline"
-                      className="w-full h-11"
-                      onClick={() => window.history.back()}
+                      onClick={() => toggleBadge(badge)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                        selectedBadges.includes(badge) 
+                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-100' 
+                        : 'bg-white text-slate-500 border-slate-200 hover:border-indigo-300'
+                      }`}
                     >
-                      Cancel
-                    </Button>
-                  </div>
+                      {badge}
+                    </button>
+                  ))}
                 </div>
               </div>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-  )
-}
+            </CardContent>
+          </Card>
 
-export default ProductAdd
+       
+        </div>
+      </div>
+    </form>
+  );
+};
+
+export default ProductAdd;

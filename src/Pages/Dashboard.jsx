@@ -53,10 +53,10 @@ const Dashboard = () => {
           
         </Card>
         <DashboardCards />
-      {/* Grid container: Mobile par 1 column, Tablets par 2, aur Desktop par 4 */}
+
 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 py-4'>
   
-  {/* Pehle do charts: Mobile par full width, Desktop par aadhi width (2/4) */}
+ 
   <Card className='md:col-span-2'>
     <MonthlyOrdersChart />
   </Card>
@@ -65,12 +65,12 @@ const Dashboard = () => {
     <MonthlyEarningsWave />
   </Card>
 
-  {/* Donut Chart: Mobile par full width, Desktop par ek column (1/4) */}
+ 
   <Card className='col-span-1 max-h-75 overflow-hidden'>
     <PaymentMethodDonut />
   </Card>
 
-  {/* Order Table: Mobile par full width, Desktop par bachi hui jagah (3/4) */}
+
   <div className='col-span-1 lg:col-span-3 overflow-x-auto'>
     <OrderTable />
   </div>

@@ -10,16 +10,17 @@ import Orders from './Pages/Orders'
 import ProductAdd from './Pages/ProductAdd'
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from './service/queryClient'
-import { ToastContainer } from 'react-toastify'
+import { Toaster } from 'react-hot-toast';
 import SubCategories from './Pages/SubCategories'
 import Categories from './Pages/Categories'
 import AllProduct from './Pages/AllProduct'
+import OrderDetails from './Pages/OrderDetail'
 function App() {
 
 
   return (
 <>
-<ToastContainer />
+<Toaster position="top-center" reverseOrder={false} />
 <QueryClientProvider client={queryClient}>
   <BrowserRouter>
 <Header />
@@ -34,6 +35,7 @@ function App() {
     }/>
     <Route path='/customers' element={<Customers />}/>
     <Route path='/orders' element={<Orders />}/>
+       <Route path='/orders/:orderid' element={<OrderDetails />}/>
     <Route path='/addproduct' element={<ProductAdd />}/>
       <Route path='/products' element={<AllProduct />}/>
     <Route path='/subcategories' element={<SubCategories />}/>

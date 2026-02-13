@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -11,159 +12,246 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Upload, Trash2, Save } from "lucide-react";
+import { Save, Loader2, BadgeCheck, X, ImagePlus, LayoutPanelTop } from "lucide-react";
+import { useActiveCategories } from "../../tanstackhooks/useCategories";
+import { toast } from "react-hot-toast";
 
-const CreateSubCategory = ({ editData = null }) => {
+const CreateSubCategory = ({ editData = null, onSubmit, isLoading }) => {
+  const { data: parentCategories, isLoading: loadingCats } = useActiveCategories();
+
   const [form, setForm] = useState({
     name: "",
     description: "",
     categoryId: "",
-    image: null,
-    bannerImage: null,
+    badge: "none",
     isFeatured: false,
+    isActive: true,
   });
 
-  // Dummy categories (baad mein DB se ayengi)
-  const categories = [
-    { id: "1", name: "Saree" },
-    { id: "2", name: "Suits" },
+  const [files, setFiles] = useState({ image: null, banner: null });
+  const [previews, setPreviews] = useState({ image: null, banner: null });
 
-  ];
-
-  // Edit mode data load
+  // Pre-fill form
   useEffect(() => {
     if (editData) {
       setForm({
-        ...editData,
-        image: null,
-        bannerImage: null,
+        name: editData.name || "",
+        description: editData.description || "",
+        categoryId: editData.categoryId || "",
+        badge: editData.badge || "none",
+        isFeatured: editData.isFeatured || false,
+        isActive: editData.isActive || true,
+      });
+      setPreviews({
+        image: editData.image || null,
+        banner: editData.banner || null,
       });
     }
   }, [editData]);
 
-  const handleChange = (key, value) => {
-    setForm({ ...form, [key]: value });
+  const handleFileChange = (e, type) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      return toast.error(`${type === 'image' ? 'Thumbnail' : 'Banner'} size must be under 2MB`);
+    }
+
+    setFiles((prev) => ({ ...prev, [type]: file }));
+    setPreviews((prev) => ({ ...prev, [type]: URL.createObjectURL(file) }));
+    toast.success(`${type === 'image' ? 'Thumbnail' : 'Banner'} selected!`);
   };
 
-  const handleSubmit = () => {
+  const removeImage = (type) => {
+    setFiles((prev) => ({ ...prev, [type]: null }));
+    setPreviews((prev) => ({ ...prev, [type]: null }));
+  };
+
+ const handleSubmit = async () => {
     if (!form.name || !form.categoryId) {
-      alert("Name & Category required");
-      return;
+      return toast.error("Name and Category are mandatory!");
     }
 
-    if (editData) {
-      console.log("UPDATE SUB CATEGORY 👉", form);
-    } else {
-      console.log("CREATE SUB CATEGORY 👉", form);
-    }
-  };
+    try {
+        console.log("Submitting Form Data:", form); // Debugging line
+        
+        // Agar onSubmit prop nahi mila toh error throw karega
+        if (!onSubmit) {
+          throw new Error("onSubmit prop is missing in the component!");
+        }
 
-  const handleDelete = () => {
-    if (confirm("Are you sure you want to delete this sub category?")) {
-      console.log("DELETE SUB CATEGORY 👉", editData?.id);
+        await onSubmit({
+            ...form,
+            imageFile: files.image,
+            bannerFile: files.banner,
+        });
+        
+    } catch (error) {
+        console.error("Submission Error:", error);
+        // Ab exact error toast mein dikhayega
+        toast.error(error.message || "Submission failed!");
     }
   };
 
   return (
-    <Card >
-      <CardHeader>
-        <CardTitle>
-          {editData ? "Edit Sub Category" : "Create Sub Category"}
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent className="space-y-5 gap-3 grid grid-cols-2">
-        {/* Name */}
-        <div  className="space-y-2"> 
-              <label className="text-sm font-medium">Sub Category Name</label>
-        <Input
-          placeholder="Sub Category Name"
-          value={form.name}
-          onChange={(e) => handleChange("name", e.target.value)}
-        />
+    <div className="max-w-6xl mx-auto space-y-6 pb-10">
+      <div className="flex items-center justify-between px-2">
+        <div>
+          <h2 className="text-2xl font-extrabold tracking-tight text-slate-800">
+            {editData ? "Edit Sub-Category" : "Create Sub-Category"}
+          </h2>
+          <p className="text-slate-500 text-sm">Organize your products with precision.</p>
         </div>
-      <div className="space-y-2">
-                     <label className="text-sm font-medium">Sub Category Description</label>
-                      {/* Description */}
-        <Textarea
-          placeholder="Description"
-          value={form.description}
-          onChange={(e) => handleChange("description", e.target.value)}
-        />
       </div>
 
-       <div className="space-y-3">
-          {/* Parent Category */}
-            <label className="text-sm font-medium">Select Parent Category</label>
-            
-        <Select
-          value={form.categoryId}
-          onValueChange={(value) => handleChange("categoryId", value)}
-        >
-          <SelectTrigger className='w-full'>
-            <SelectValue placeholder="Select Category" />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((cat) => (
-              <SelectItem key={cat.id} value={cat.id}>
-                {cat.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-       </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column: Form Details */}
+        <div className="lg:col-span-2 space-y-6">
+          <Card className="shadow-md border-slate-200">
+            <CardHeader className="border-b bg-slate-50/50">
+              <CardTitle className="text-base font-semibold">General Details</CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="font-medium text-slate-700">Sub-Category Name *</Label>
+                  <Input
+                    placeholder="e.g. Luxury Handbags"
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    className="focus-visible:ring-primary"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-medium text-slate-700">Parent Category *</Label>
+                  <Select
+                    value={form.categoryId}
+                    onValueChange={(v) => setForm({ ...form, categoryId: v })}
+                  >
+                    <SelectTrigger className='w-full'>
+                      <SelectValue placeholder={loadingCats ? "Fetching..." : "Select Parent"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {parentCategories?.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
 
-      
+              <div className="space-y-2">
+                <Label className="font-medium text-slate-700">Description</Label>
+                <Textarea
+                  placeholder="Tell customers about this collection..."
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  className="min-h-30 resize-none"
+                />
+              </div>
+            </CardContent>
+          </Card>
 
-        {/* Image Upload */}
-        <div>
-          <label className="text-sm font-medium">Sub Category Image</label>
-          <Input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleChange("image", e.target.files[0])}
-          />
+          {/* Banner Upload Card */}
+          <Card className="shadow-md border-slate-200">
+            <CardHeader className="border-b bg-slate-50/50">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <LayoutPanelTop className="w-4 h-4" /> Category Banner
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              {previews.banner ? (
+                <div className="relative rounded-lg overflow-hidden border-2 border-slate-100">
+                  <img src={previews.banner} className="w-full h-48 object-cover" />
+                  <Button 
+                    variant="destructive" size="icon" className="absolute top-2 right-2 h-7 w-7 rounded-full"
+                    onClick={() => removeImage('banner')}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              ) : (
+                <label className="border-2 border-dashed border-slate-300 rounded-lg h-40 flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100 transition-all cursor-pointer group">
+                  <ImagePlus className="w-10 h-10 text-slate-400 group-hover:scale-110 transition-transform" />
+                  <span className="mt-2 text-sm font-medium text-slate-600">Upload Banner Image</span>
+                  <p className="text-xs text-slate-400">Recommended: 1200x400px</p>
+                  <input type="file" className="hidden" onChange={(e) => handleFileChange(e, 'banner')} accept="image/*" />
+                </label>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Banner Image */}
-        <div>
-          <label className="text-sm font-medium">Banner Image</label>
-          <Input
-            type="file"
-            accept="image/*"
-            onChange={(e) =>
-              handleChange("bannerImage", e.target.files[0])
-            }
-          />
-        </div>
+        {/* Right Column: Settings & Thumbnail */}
+        <div className="space-y-6">
+          <Card className="shadow-md border-slate-200">
+            <CardHeader className="border-b bg-slate-50/50">
+              <CardTitle className="text-base font-semibold">Thumbnail & Badge</CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              {/* Thumbnail Upload */}
+              <div className="space-y-3">
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-500">Thumbnail</Label>
+                {previews.image ? (
+                  <div className="relative rounded-lg overflow-hidden border">
+                    <img src={previews.image} className="w-full h-40 object-cover" />
+                    <Button 
+                      variant="destructive" size="icon" className="absolute top-2 right-2 h-7 w-7 rounded-full"
+                      onClick={() => removeImage('image')}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <label className="border-2 border-dashed border-slate-300 rounded-lg h-40 flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100 cursor-pointer">
+                    <ImagePlus className="w-8 h-8 text-slate-400" />
+                    <span className="mt-2 text-xs font-medium text-slate-600">Upload Square Image</span>
+                    <input type="file" className="hidden" onChange={(e) => handleFileChange(e, 'image')} accept="image/*" />
+                  </label>
+                )}
+              </div>
 
-        {/* Featured */}
-        <div className="flex items-center justify-between">
-          <span className="font-medium">Featured Sub Category</span>
-          <Switch
-            checked={form.isFeatured}
-            onCheckedChange={(value) =>
-              handleChange("isFeatured", value)
-            }
-          />
-        </div>
+              {/* Badge Selection */}
+              <div className="space-y-3 pt-4 border-t">
+                <Label className="flex items-center gap-2 font-medium">
+                  <BadgeCheck className="w-4 h-4 text-primary" /> Promotion Badge
+                </Label>
+                <Select value={form.badge} onValueChange={(v) => setForm({ ...form, badge: v })}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    <SelectItem value="Best Seller">🔥 Best Seller</SelectItem>
+                    <SelectItem value="Top Rated">⭐ Top Rated</SelectItem>
+                    <SelectItem value="New Arrival">✨ New Arrival</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-        {/* Actions */}
-        <div className="flex justify-between gap-3">
-          {editData && (
-            <Button variant="destructive" onClick={handleDelete}>
-              <Trash2 className="w-4 h-4 mr-2" />
-              Delete
-            </Button>
-          )}
+              {/* Switches */}
+              <div className="space-y-4 pt-4 border-t">
+                <div className="flex items-center justify-between p-2 rounded-md hover:bg-slate-50 transition-colors">
+                  <Label className="cursor-pointer">Featured Category</Label>
+                  <Switch checked={form.isFeatured} onCheckedChange={(v) => setForm({ ...form, isFeatured: v })} />
+                </div>
+                <div className="flex items-center justify-between p-2 rounded-md hover:bg-slate-50 transition-colors">
+                  <Label className="cursor-pointer font-semibold text-primary">Active Status</Label>
+                  <Switch checked={form.isActive} onCheckedChange={(v) => setForm({ ...form, isActive: v })} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-          <Button onClick={handleSubmit}>
-            <Save className="w-4 h-4 mr-2" />
-            {editData ? "Update" : "Create"}
+          <Button 
+            className="w-full h-12 text-base font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]" 
+            onClick={handleSubmit} 
+            disabled={isLoading}
+          >
+            {isLoading ? <Loader2 className="animate-spin mr-2" /> : <Save className="mr-2 w-5 h-5" />}
+            {editData ? "Update Sub-Category" : "Publish Sub-Category"}
           </Button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
