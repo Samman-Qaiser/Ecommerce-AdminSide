@@ -10,6 +10,7 @@ import {
   limit,
   startAfter,
   serverTimestamp,
+  deleteDoc
 } from "firebase/firestore";
 import { db } from "../firebase/firebaseconfig";
 
@@ -105,6 +106,15 @@ class OrderService {
       updatedAt: serverTimestamp(),
     });
   }
+  async deleteOrder(orderId) {
+  try {
+    const orderRef = doc(db, this.collectionName, orderId);
+    await deleteDoc(orderRef);
+  } catch (error) {
+    throw new Error("Failed to delete order: " + error.message);
+  }
+}
+
 }
 
 export const orderService = new OrderService();

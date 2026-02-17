@@ -25,7 +25,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
-import { Pencil, Trash2, Layers, Star, ImageIcon } from "lucide-react";
+// Pagination ke liye Chevron icons add kiye hain
+import { Pencil, Trash2, Layers, Star, ImageIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import CreateSubCategory from "./CreateSubCategory";
 
 export function EdDelSubCategory({ 
@@ -37,6 +38,10 @@ export function EdDelSubCategory({
 }) {
   const [editSubCat, setEditSubCat] = useState(null);
   const [deleteSubCat, setDeleteSubCat] = useState(null);
+  
+  // --- Pagination State ---
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // Ek page par kitni categories dikhani hain
 
   const handleUpdate = (data) => {
     onUpdate({
@@ -61,9 +66,17 @@ export function EdDelSubCategory({
     );
   }
 
+  // --- Pagination Logic ---
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = subcategories.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(subcategories.length / itemsPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
     <>
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+     <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         <Table>
           <TableHeader className="bg-slate-50/50">
             <TableRow>
@@ -77,7 +90,7 @@ export function EdDelSubCategory({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {subcategories.map((subCat) => (
+            {currentItems.map((subCat) => (
               <TableRow key={subCat.id} className="hover:bg-slate-50/50 transition-colors group">
                 <TableCell>
                   <div className="h-12 w-12 rounded-lg border border-slate-100 bg-slate-50 flex items-center justify-center overflow-hidden">
@@ -96,7 +109,7 @@ export function EdDelSubCategory({
                 <TableCell>
                   <div className="flex flex-col">
                     <span className="font-bold text-slate-700">{subCat.name}</span>
-                    <span className="text-[11px] text-slate-400 truncate max-w-37.5">
+                    <span className="text-[11px] text-slate-400 truncate max-w-[150px]">
                       {subCat.description || "No description"}
                     </span>
                   </div>
@@ -162,6 +175,48 @@ export function EdDelSubCategory({
             ))}
           </TableBody>
         </Table>
+
+        {/* --- Pagination Controls --- */}
+        <div className="flex items-center justify-between px-6 py-4 bg-white border-t border-slate-100">
+          <p className="text-sm text-slate-500 font-medium">
+            Showing <span className="text-slate-900">{indexOfFirstItem + 1}</span> to <span className="text-slate-900">{Math.min(indexOfLastItem, subcategories.length)}</span> of <span className="text-slate-900">{subcategories.length}</span> categories
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9 gap-1 rounded-lg border-slate-200"
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" /> Previous
+            </Button>
+            
+            <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
+                    <Button
+                        key={number}
+                        variant={currentPage === number ? "default" : "ghost"}
+                        size="sm"
+                        className={`h-9 w-9 rounded-lg ${currentPage === number ? 'bg-slate-900 text-white' : 'text-slate-500'}`}
+                        onClick={() => paginate(number)}
+                    >
+                        {number}
+                    </Button>
+                ))}
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9 gap-1 rounded-lg border-slate-200"
+              onClick={() => paginate(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Next <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Modern Dialog Styles */}

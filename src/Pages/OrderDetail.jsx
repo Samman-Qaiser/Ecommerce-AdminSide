@@ -142,10 +142,10 @@ const handleDownloadInvoice = () => {
     doc.setFont("helvetica", "normal");
     doc.setTextColor(...secondaryColor);
     doc.text([
-      "Doritaaga Ecommerce Store",
-      "GST: 06AKWPY3989Q1ZF",
+      "Doritaaga by Kriti",
+      "GSTIN: 06AKWPY3989Q1ZF",
       "Haryana, India",
-      "support@doritaaga.com"
+      "doritaagekriti1@gmail.com"
     ], pageWidth - 14, 38, { align: "right", lineHeightFactor: 1.5 });
 
     // 3. INVOICE TITLE & HORIZONTAL RULE
@@ -442,7 +442,7 @@ useEffect(()=>{
   const timeline = generateTimeline(order);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-50 p-6 lg:p-8">
+    <div className="min-h-screen p-6 lg:p-8">
       <div className="max-w-350 mx-auto space-y-6">
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">

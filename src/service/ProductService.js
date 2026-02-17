@@ -29,13 +29,7 @@ import { db, storage } from '../firebase/firebaseconfig';
 export const productService = {
   
   // ==================== IMAGE UPLOAD ====================
-  /**
-   * Upload single image with progress tracking
-   * @param {File} file - Image file to upload
-   * @param {string} folder - Storage folder path
-   * @param {Function} onProgress - Progress callback (0-100)
-   * @returns {Promise<string>} Download URL
-   */
+
   uploadImage: async (file, folder = 'products', onProgress = null) => {
     if (!file) return null;
     
@@ -74,13 +68,7 @@ export const productService = {
     }
   },
 
-  /**
-   * Upload multiple images in parallel with overall progress
-   * @param {File[]} files - Array of image files
-   * @param {string} folder - Storage folder
-   * @param {Function} onProgress - Overall progress callback
-   * @returns {Promise<string[]>} Array of download URLs
-   */
+
   uploadMultipleImages: async (files, folder = 'products', onProgress = null) => {
     if (!files || files.length === 0) return [];
     
@@ -99,12 +87,7 @@ export const productService = {
     return await Promise.all(uploadPromises);
   },
 
-  /**
-   * Upload video with progress tracking
-   * @param {File} file - Video file
-   * @param {Function} onProgress - Progress callback
-   * @returns {Promise<string>} Download URL
-   */
+ 
   uploadVideo: async (file, onProgress = null) => {
     if (!file) return null;
     
@@ -156,12 +139,7 @@ export const productService = {
 
   // ==================== CRUD OPERATIONS ====================
   
-  /**
-   * Create new product with optimistic updates
-   * @param {Object} productData - Product data
-   * @param {Function} onProgress - Upload progress callback
-   * @returns {Promise<string>} Created product ID
-   */
+ 
   create: async (productData, onProgress = null) => {
     try {
       const { 

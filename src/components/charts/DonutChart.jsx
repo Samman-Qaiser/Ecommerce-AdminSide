@@ -14,7 +14,7 @@ const COLORS = {
   cod: "#8b5cf6", // Purple for COD
   stripe: "#3b82f6", // Blue for Stripe
   card: "#10b981", // Green for Card
-  other: "#f59e0b", // Amber for Other
+  other: "#3B82F6", // Amber for Other
 };
 
 const PaymentMethodDonut = () => {

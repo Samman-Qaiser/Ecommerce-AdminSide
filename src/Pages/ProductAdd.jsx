@@ -71,6 +71,10 @@ const ProductAdd = ({ onSuccess, onCancel }) => {
   const [colors, setColors] = useState([]);
   const [washcareInput, setWashcareInput] = useState('');
   const [washcare, setWashcare] = useState([]);
+  const [patternInput, setPatternInput] = useState('');
+  const [patterns, setPatterns] = useState([]);
+  const [occasionInput, setOccasionInput] = useState('');
+  const [occasions, setOccasions] = useState([]);
 
   const formValues = watch();
 
@@ -114,6 +118,20 @@ const ProductAdd = ({ onSuccess, onCancel }) => {
     }
   };
 
+  const addPattern = () => {
+    if (patternInput.trim() && !patterns.includes(patternInput.trim())) {
+      setPatterns(prev => [...prev, patternInput.trim()]);
+      setPatternInput('');
+    }
+  };
+
+  const addOccasion = () => {
+    if (occasionInput.trim() && !occasions.includes(occasionInput.trim())) {
+      setOccasions(prev => [...prev, occasionInput.trim()]);
+      setOccasionInput('');
+    }
+  };
+
   const onSubmit = async (data) => {
     try {
       const productData = {
@@ -128,7 +146,14 @@ const ProductAdd = ({ onSuccess, onCancel }) => {
         imageFiles,
         videoFile,
         badges: selectedBadges,
-        details: { fabric: data.fabric || '', colors, sizes: selectedSizes, washcare }
+        details: {
+          fabric: data.fabric || '',
+          colors,
+          sizes: selectedSizes,
+          washcare,
+          patterns,
+          occasions,
+        }
       };
       await createProduct.mutateAsync({ productData, onProgress: setUploadProgress }, { onSuccess: () => onSuccess?.() });
     } catch (error) { console.error('Submit error:', error); }
@@ -264,17 +289,23 @@ const ProductAdd = ({ onSuccess, onCancel }) => {
               </div>
             </CardContent>
           </Card>
-             {/* Specifications Card */}
+
+          {/* Specifications Card */}
           <Card className="border-none shadow-sm shadow-slate-200">
             <CardHeader>
-              <CardTitle className="text-lg">Specifications</CardTitle>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <FileText className="w-4 h-4 text-indigo-500" /> Specifications
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-5">
+
+              {/* Fabric */}
               <div>
-                <Label className="text-slate-600 text-xs">Fabric Detail</Label>
+                <Label className="text-slate-600 text-xs font-bold uppercase tracking-tighter">Fabric Detail</Label>
                 <Input {...register('fabric')} placeholder="Linen, Cotton..." className="mt-1 bg-slate-50/50" />
               </div>
 
+              {/* Sizes */}
               <div>
                 <Label className="text-slate-600 text-xs font-bold mb-2 block uppercase tracking-tighter">Sizes Available</Label>
                 <div className="flex flex-wrap gap-2">
@@ -283,8 +314,8 @@ const ProductAdd = ({ onSuccess, onCancel }) => {
                       key={size}
                       onClick={() => toggleSize(size)}
                       className={`h-9 w-9 flex items-center justify-center rounded-lg cursor-pointer border-2 transition-all font-bold text-xs ${
-                        selectedSizes.includes(size) 
-                        ? 'border-indigo-600 bg-indigo-50 text-indigo-600' 
+                        selectedSizes.includes(size)
+                        ? 'border-indigo-600 bg-indigo-50 text-indigo-600'
                         : 'border-slate-100 bg-slate-50 text-slate-400 hover:border-slate-300'
                       }`}
                     >
@@ -294,23 +325,84 @@ const ProductAdd = ({ onSuccess, onCancel }) => {
                 </div>
               </div>
 
-              {/* Tag Style Inputs for Colors & Washcare */}
-              <div className="space-y-4">
-                <div>
-                  <Label className="text-slate-600 text-xs">Colors</Label>
-                  <div className="flex gap-2 mt-1">
-                    <Input value={colorInput} onChange={(e) => setColorInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addColor())} placeholder="Red..." className="h-8 text-sm" />
-                    <Button type="button" onClick={addColor} variant="outline" size="sm" className="h-8">Add</Button>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {colors.map((c, i) => (
-                      <Badge key={i} variant="secondary" className="bg-slate-200 text-slate-700 hover:bg-red-100 hover:text-red-700 transition-colors cursor-pointer" onClick={() => setColors(prev => prev.filter((_, idx) => idx !== i))}>
-                        {c} <X className="w-2 h-2 ml-1" />
-                      </Badge>
-                    ))}
-                  </div>
+              <Separator className="bg-slate-100" />
+
+              {/* Colors */}
+              <div>
+                <Label className="text-slate-600 text-xs font-bold uppercase tracking-tighter">Colors</Label>
+                <div className="flex gap-2 mt-1">
+                  <Input
+                    value={colorInput}
+                    onChange={(e) => setColorInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addColor())}
+                    placeholder="e.g. Burgundy, Olive..."
+                    className="h-9 text-sm bg-slate-50/50"
+                  />
+                  <Button type="button" onClick={addColor} variant="outline" size="sm" className="h-9 px-4 shrink-0">Add</Button>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {colors.map((c, i) => (
+                    <Badge key={i} variant="secondary" className="bg-slate-200 text-slate-700 hover:bg-red-100 hover:text-red-700 transition-colors cursor-pointer" onClick={() => setColors(prev => prev.filter((_, idx) => idx !== i))}>
+                      {c} <X className="w-2 h-2 ml-1" />
+                    </Badge>
+                  ))}
                 </div>
               </div>
+
+              {/* Pattern */}
+              <div>
+                <Label className="text-slate-600 text-xs font-bold uppercase tracking-tighter">Pattern</Label>
+                <p className="text-[10px] text-slate-400 mb-1">e.g. Floral, Geometric, Striped, Solid, Paisley</p>
+                <div className="flex gap-2">
+                  <Input
+                    value={patternInput}
+                    onChange={(e) => setPatternInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addPattern())}
+                    placeholder="Type a pattern and press Add..."
+                    className="h-9 text-sm bg-slate-50/50"
+                  />
+                  <Button type="button" onClick={addPattern} variant="outline" size="sm" className="h-9 px-4 shrink-0">Add</Button>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {patterns.map((p, i) => (
+                    <Badge
+                      key={i}
+                      className="bg-violet-50 text-violet-700 border border-violet-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors cursor-pointer"
+                      onClick={() => setPatterns(prev => prev.filter((_, idx) => idx !== i))}
+                    >
+                      {p} <X className="w-2 h-2 ml-1" />
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              {/* Occasion */}
+              <div>
+                <Label className="text-slate-600 text-xs font-bold uppercase tracking-tighter">Occasion</Label>
+                <p className="text-[10px] text-slate-400 mb-1">e.g. Wedding, Casual, Party, Festive, Office</p>
+                <div className="flex gap-2">
+                  <Input
+                    value={occasionInput}
+                    onChange={(e) => setOccasionInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addOccasion())}
+                    placeholder="Type an occasion and press Add..."
+                    className="h-9 text-sm bg-slate-50/50"
+                  />
+                  <Button type="button" onClick={addOccasion} variant="outline" size="sm" className="h-9 px-4 shrink-0">Add</Button>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {occasions.map((o, i) => (
+                    <Badge
+                      key={i}
+                      className="bg-amber-50 text-amber-700 border border-amber-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors cursor-pointer"
+                      onClick={() => setOccasions(prev => prev.filter((_, idx) => idx !== i))}
+                    >
+                      {o} <X className="w-2 h-2 ml-1" />
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
             </CardContent>
           </Card>
         </div>
@@ -395,8 +487,8 @@ const ProductAdd = ({ onSuccess, onCancel }) => {
                       type="button"
                       onClick={() => toggleBadge(badge)}
                       className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${
-                        selectedBadges.includes(badge) 
-                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-100' 
+                        selectedBadges.includes(badge)
+                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-100'
                         : 'bg-white text-slate-500 border-slate-200 hover:border-indigo-300'
                       }`}
                     >
@@ -408,7 +500,6 @@ const ProductAdd = ({ onSuccess, onCancel }) => {
             </CardContent>
           </Card>
 
-       
         </div>
       </div>
     </form>

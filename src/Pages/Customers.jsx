@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Table,
   TableBody,
@@ -26,6 +26,10 @@ import { useDebounce } from "use-debounce";
 const PAGE_SIZE = 15;
 
 const Customers = () => {
+  // 🔹 Local search state — separate from hook's server-side state
+  const [localSearch, setLocalSearch] = useState("");
+  const [debouncedSearch] = useDebounce(localSearch, 300);
+
   const {
     customers,
     isLoading,
@@ -33,22 +37,47 @@ const Customers = () => {
     nextPage,
     prevPage,
     page,
-    searchTerm,
-    setSearchTerm,
     sortBy,
     setSortBy,
     updateUser,
-  } = useUsers();
+  } = useUsers(); // ✅ Removed searchTerm from hook — we do filtering client-side
 
-  // 🔹 Debounce search for performance
-  const [debouncedSearch] = useDebounce(searchTerm, 500);
+  // 🔹 Client-side filtering by name OR email
+  const filteredCustomers = useMemo(() => {
+    if (!debouncedSearch.trim()) return customers ?? [];
 
-  // 🔹 Memoized Empty Check
-  const isEmpty = useMemo(() => {
-    return !isLoading && customers?.length === 0;
-  }, [customers, isLoading]);
+    const query = debouncedSearch.toLowerCase().trim();
 
-  // 🔹 Professional Status Toggle
+    return (customers ?? []).filter((customer) => {
+      const nameMatch = customer.fullName?.toLowerCase().includes(query);
+      const emailMatch = customer.email?.toLowerCase().includes(query);
+      return nameMatch || emailMatch;
+    });
+  }, [customers, debouncedSearch]);
+
+  // 🔹 Client-side sort (applied after filter)
+  const sortedCustomers = useMemo(() => {
+    if (!sortBy) return filteredCustomers;
+
+    return [...filteredCustomers].sort((a, b) => {
+      if (sortBy === "fullName") {
+        return (a.fullName || "").localeCompare(b.fullName || "");
+      }
+      if (sortBy === "email") {
+        return (a.email || "").localeCompare(b.email || "");
+      }
+      if (sortBy === "createdAt") {
+        // Newest first
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      }
+      return 0;
+    });
+  }, [filteredCustomers, sortBy]);
+
+  // 🔹 Empty state check
+  const isEmpty = !isLoading && sortedCustomers.length === 0;
+
+  // 🔹 Status Toggle
   const handleStatusToggle = (id, currentStatus = "Active") => {
     const newStatus = currentStatus === "Active" ? "InActive" : "Active";
     updateUser({ uid: id, data: { status: newStatus } });
@@ -74,8 +103,8 @@ const Customers = () => {
             <Input
               placeholder="Search by name or email..."
               className="pl-8"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
             />
           </div>
 
@@ -104,6 +133,7 @@ const Customers = () => {
                 <TableRow className="bg-muted/50">
                   <TableHead>Customer</TableHead>
                   <TableHead>Email</TableHead>
+                    <TableHead>Phone Number</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -116,12 +146,14 @@ const Customers = () => {
                       colSpan={4}
                       className="h-24 text-center text-muted-foreground"
                     >
-                      No customers found.
+                      {debouncedSearch
+                        ? `No customers found for "${debouncedSearch}".`
+                        : "No customers found."}
                     </TableCell>
                   </TableRow>
                 )}
 
-                {customers?.map((customer) => (
+                {sortedCustomers.map((customer) => (
                   <TableRow
                     key={customer.id}
                     className="hover:bg-muted/50 transition"
@@ -146,7 +178,9 @@ const Customers = () => {
                     <TableCell className="text-sm">
                       {customer.email}
                     </TableCell>
-
+  <TableCell className="text-sm">
+                      {customer.phoneNumber}
+                    </TableCell>
                     <TableCell>
                       <Badge
                         variant={
@@ -165,10 +199,7 @@ const Customers = () => {
                         size="sm"
                         disabled={isUpdating}
                         onClick={() =>
-                          handleStatusToggle(
-                            customer.id,
-                            customer.status
-                          )
+                          handleStatusToggle(customer.id, customer.status)
                         }
                       >
                         {isUpdating ? (
@@ -187,6 +218,12 @@ const Customers = () => {
             <div className="flex items-center justify-between px-4 py-4 border-t bg-muted/20">
               <p className="text-sm text-muted-foreground">
                 Page <strong>{page}</strong>
+                {debouncedSearch && (
+                  <span className="ml-2 text-xs">
+                    · {sortedCustomers.length} result
+                    {sortedCustomers.length !== 1 ? "s" : ""}
+                  </span>
+                )}
               </p>
 
               <div className="flex gap-2">
@@ -194,7 +231,7 @@ const Customers = () => {
                   variant="outline"
                   size="sm"
                   onClick={prevPage}
-                  disabled={page === 1}
+                  disabled={page === 1 || !!debouncedSearch}
                 >
                   Previous
                 </Button>
@@ -203,7 +240,9 @@ const Customers = () => {
                   variant="outline"
                   size="sm"
                   onClick={nextPage}
-                  disabled={customers?.length < PAGE_SIZE}
+                  disabled={
+                    customers?.length < PAGE_SIZE || !!debouncedSearch
+                  }
                 >
                   Next
                 </Button>

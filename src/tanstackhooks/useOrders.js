@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { orderService } from "../service/ordersService";
-
+import {toast} from 'react-hot-toast'
 const PAGE_SIZE = 15;
 
 export const useOrders = () => {
@@ -60,7 +60,16 @@ export const useOrders = () => {
       queryClient.invalidateQueries(["adminOrders"]);
     },
   });
-
+const deleteOrder = useMutation({
+  mutationFn: (orderId) => orderService.deleteOrder(orderId),
+  onSuccess: () => {
+    toast.success("Order deleted successfully");
+    queryClient.invalidateQueries(["adminOrders"]);
+  },
+  onError: () => {
+    toast.error("Failed to delete order");
+  },
+})
   return {
     orders: data?.orders || [],
     isLoading,
@@ -75,5 +84,6 @@ export const useOrders = () => {
     setPaymentStatusFilter,
     updateStatus,
     updatePayment,
+    deleteOrder
   };
 };

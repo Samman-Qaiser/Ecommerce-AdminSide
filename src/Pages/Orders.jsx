@@ -38,6 +38,17 @@ import {
 } from "lucide-react";
 import { useOrders } from "../tanstackhooks/useOrders";
 import { useNavigate } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 const statusConfig = {
   pending: {
@@ -69,8 +80,15 @@ const statusConfig = {
 };
 
 const Orders = () => {
-  const { orders, isLoading, page, nextPage, prevPage, updateStatus } =
-    useOrders();
+  const {
+    orders,
+    deleteOrder,
+    isLoading,
+    page,
+    nextPage,
+    prevPage,
+    updateStatus,
+  } = useOrders();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -116,12 +134,36 @@ const Orders = () => {
     const matchesSearch =
       order.orderNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.customerName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.email?.toLowerCase().includes(searchQuery.toLowerCase());
+      order.customerEmail?.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesStatus =
       statusFilter === "all" || order.status === statusFilter;
 
-    return matchesSearch && matchesStatus;
+    // 🔥 Date Filter Logic
+    let matchesDate = true;
+
+    if (dateFilter !== "all" && order.createdAt) {
+      const orderDate = order.createdAt.toDate();
+      const now = new Date();
+
+      if (dateFilter === "today") {
+        matchesDate = orderDate.toDateString() === now.toDateString();
+      }
+
+      if (dateFilter === "week") {
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(now.getDate() - 7);
+        matchesDate = orderDate >= oneWeekAgo;
+      }
+
+      if (dateFilter === "month") {
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(now.getMonth() - 1);
+        matchesDate = orderDate >= oneMonthAgo;
+      }
+    }
+
+    return matchesSearch && matchesStatus && matchesDate;
   });
 
   const handleStatusUpdate = (orderId, newStatus) => {
@@ -138,7 +180,7 @@ const Orders = () => {
   ].filter(Boolean).length;
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-50 p-6 lg:p-8">
+    <div className="min-h-screen ">
       <div className="max-w-400 mx-auto space-y-6">
         {/* Header Section */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -272,8 +314,8 @@ const Orders = () => {
                   <TableHead className="font-semibold text-slate-700">
                     Customer
                   </TableHead>
-                   <TableHead className="font-semibold text-slate-700">
-                  Email
+                  <TableHead className="font-semibold text-slate-700">
+                    Email
                   </TableHead>
                   <TableHead className="font-semibold text-slate-700">
                     Products
@@ -339,12 +381,10 @@ const Orders = () => {
                           <div className="font-medium text-slate-900">
                             {order.customerName}
                           </div>
-                          <div className="text-xs text-slate-500">
-                        
-                          </div>
+                          <div className="text-xs text-slate-500"></div>
                         </div>
                       </TableCell>
-                      <TableCell>    {order.customerEmail}</TableCell>
+                      <TableCell> {order.customerEmail}</TableCell>
 
                       {/* Products */}
                       <TableCell>
@@ -459,6 +499,40 @@ const Orders = () => {
                               <Download size={16} />
                               Download Invoice
                             </DropdownMenuItem> */}
+                         <AlertDialog>
+  <AlertDialogTrigger asChild>
+    <DropdownMenuItem
+      className="gap-2 cursor-pointer text-red-600 focus:text-red-600"
+      onSelect={(e) => e.preventDefault()} // 👈 IMPORTANT
+    >
+      <X size={16} />
+      Delete
+    </DropdownMenuItem>
+  </AlertDialogTrigger>
+
+  <AlertDialogContent>
+    <AlertDialogHeader>
+      <AlertDialogTitle>
+        Delete Order #{order.orderNumber}?
+      </AlertDialogTitle>
+      <AlertDialogDescription>
+        This action cannot be undone. This will permanently delete this order.
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+
+    <AlertDialogFooter>
+      <AlertDialogCancel>Cancel</AlertDialogCancel>
+
+      <AlertDialogAction
+        onClick={() => deleteOrder.mutate(order.id)}
+        className="bg-red-600 hover:bg-red-700"
+      >
+        Delete
+      </AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>
+
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
