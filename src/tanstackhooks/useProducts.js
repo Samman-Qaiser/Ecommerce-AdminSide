@@ -20,11 +20,9 @@ export const PRODUCT_QUERY_KEYS = {
   search: (term) => [...PRODUCT_QUERY_KEYS.all, 'search', term]
 };
 
-/**
- * Hook: Get all products with pagination
- * @param {Object} options - Query options
- * @returns {Object} Query result with products data
- */
+
+ //Hook: Get all products with pagination
+
 export const useProducts = (options = {}) => {
   return useInfiniteQuery({
     queryKey: PRODUCT_QUERY_KEYS.list(options),
@@ -39,12 +37,9 @@ export const useProducts = (options = {}) => {
   });
 };
 
-/**
- * Hook: Get single product by ID
- * @param {string} id - Product ID
- * @param {Object} options - Additional query options
- * @returns {Object} Query result with product data
- */
+
+ // Hook: Get single product by ID
+
 export const useProduct = (id, options = {}) => {
   return useQuery({
     queryKey: PRODUCT_QUERY_KEYS.detail(id),

@@ -186,7 +186,7 @@ const AllProduct = () => {
 
       {/* Add Product Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="max-w-4xl max-h-[90vh] mt-5 overflow-y-auto">
+        <DialogContent className="min-w-[80vw] max-h-[90vh] mt-5 overflow-y-auto">
           <ProductAdd
             onSuccess={() => setShowAddDialog(false)}
             onCancel={() => setShowAddDialog(false)}

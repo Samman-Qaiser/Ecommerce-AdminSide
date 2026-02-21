@@ -66,7 +66,7 @@ const StatCard = ({ title, value, icon: Icon, gradient, linkTo, isLoading, trend
         </div>
 
         {/* Subtle glow effect on hover */}
-        <div className="absolute inset-0 bg-gradient-to-t from-white/0 to-white/10 opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+        <div className="absolute inset-0 bg-linear-to-t from-white/0 to-white/10 opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
       </div>
     </Link>
   );

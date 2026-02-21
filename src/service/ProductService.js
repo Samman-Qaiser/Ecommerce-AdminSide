@@ -121,10 +121,7 @@ export const productService = {
     }
   },
 
-  /**
-   * Delete file from storage
-   * @param {string} fileUrl - File URL to delete
-   */
+
   deleteFile: async (fileUrl) => {
     if (!fileUrl) return;
     

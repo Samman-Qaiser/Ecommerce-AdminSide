@@ -11,10 +11,10 @@ import { useOrders } from "../../tanstackhooks/useOrders";
 import { Loader2 } from "lucide-react";
 
 const COLORS = {
-  cod: "#8b5cf6", // Purple for COD
+  cod: "#2A46C4", // Purple for COD
   stripe: "#3b82f6", // Blue for Stripe
   card: "#10b981", // Green for Card
-  other: "#3B82F6", // Amber for Other
+  other: "#5BC3F9", // Amber for Other
 };
 
 const PaymentMethodDonut = () => {
